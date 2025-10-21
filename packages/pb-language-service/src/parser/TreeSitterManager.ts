@@ -1,5 +1,5 @@
-import Parser from 'tree-sitter';
 import PowerBuilder from '@pb-shrugged/tree-sitter-powerbuilder';
+import Parser from 'tree-sitter';
 import { Range } from 'vscode-languageserver-types';
 
 /**

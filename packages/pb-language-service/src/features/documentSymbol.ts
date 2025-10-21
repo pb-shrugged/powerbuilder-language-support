@@ -1,6 +1,7 @@
 
 import Parser from 'tree-sitter';
 import { DocumentSymbol } from 'vscode-languageserver-types';
+
 import { SymbolProvider } from '../symbols/SymbolProvider';
 
 /**

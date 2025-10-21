@@ -1,6 +1,7 @@
 
 import Parser from 'tree-sitter';
 import { Location, Position } from 'vscode-languageserver-types';
+
 import { SymbolProvider } from '../symbols/SymbolProvider';
 
 /**

@@ -1,6 +1,7 @@
 
 import Parser from 'tree-sitter';
 import { Hover, Position } from 'vscode-languageserver-types';
+
 import { SymbolProvider } from '../symbols/SymbolProvider';
 
 /**

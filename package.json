@@ -11,18 +11,26 @@
 		"watch": "npm run watch --workspaces --if-present",
 		"clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
 		"test": "npm run test --workspaces --if-present",
+		"lint": "npm run lint --workspaces --if-present",
+		"lint:fix": "npm run lint:fix --workspaces --if-present",
 		"postinstall": "npm run build"
 	},
 	"engines": {
-		"node": ">=16.0.0",
-		"npm": ">=8.0.0"
+		"node": ">=22.14.0",
+		"npm": ">=11.4.2"
 	},
 	"devDependencies": {
-		"@eslint/js": "^9.13.0",
-		"@stylistic/eslint-plugin": "^2.9.0",
-		"@types/node": "^20.10.0",
-		"eslint": "^9.13.0",
-		"typescript": "^5.3.0",
-		"typescript-eslint": "^8.39.0"
+		"@stylistic/eslint-plugin": "^5.5.0",
+		"@types/node": "^24.9.1",
+		"@typescript-eslint/eslint-plugin": "^8.46.2",
+		"@typescript-eslint/parser": "^8.46.2",
+		"eslint": "^9.38.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.4",
+		"eslint-plugin-simple-import-sort": "^12.1.1",
+		"eslint-plugin-sort-class-members": "^1.21.0",
+		"prettier": "^3.6.2",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.46.2"
 	}
 }

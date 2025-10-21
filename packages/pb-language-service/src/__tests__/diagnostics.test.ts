@@ -1,6 +1,6 @@
 
-import { TreeSitterManager } from '../parser/TreeSitterManager';
 import { validateDocument } from '../features/diagnostics';
+import { TreeSitterManager } from '../parser/TreeSitterManager';
 
 describe('Diagnostics', () => {
   let manager: TreeSitterManager;

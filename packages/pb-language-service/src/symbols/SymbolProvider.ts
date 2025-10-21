@@ -1,5 +1,6 @@
 import Parser from 'tree-sitter';
 import { Position, Range, SymbolKind } from 'vscode-languageserver-types';
+
 import { getNodeRange, getNodeText } from '../utils/ast';
 
 export interface Symbol {

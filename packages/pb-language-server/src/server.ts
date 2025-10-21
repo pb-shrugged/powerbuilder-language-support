@@ -1,21 +1,19 @@
 import {
-	createConnection,
-	TextDocuments,
-	ProposedFeatures,
-	InitializeParams,
-	TextDocumentSyncKind,
-	InitializeResult,
-	HoverParams,
-	DefinitionParams,
-	DocumentSymbolParams,
-	DidChangeTextDocumentParams,
-} from "vscode-languageserver/node";
-
-import { TextDocument } from "vscode-languageserver-textdocument";
-import {
 	PowerBuilderLanguageService,
 	TextDocumentContentChangeEvent,
-} from "@powerbuilder-lsp/language-service";
+} from '@powerbuilder-lsp/language-service';
+import {
+	createConnection,
+	DefinitionParams,
+	DidChangeTextDocumentParams,
+	DocumentSymbolParams,
+	HoverParams,
+	InitializeResult,
+	ProposedFeatures,
+	TextDocuments,
+	TextDocumentSyncKind,
+} from 'vscode-languageserver/node';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 // Cria a conexão do servidor usando Node IPC
 const connection = createConnection(ProposedFeatures.all);
@@ -31,8 +29,8 @@ const diagnosticTimers = new Map<string, NodeJS.Timeout>();
 const DIAGNOSTIC_DEBOUNCE_MS = 300;
 
 // Lifecycle: Initialize
-connection.onInitialize((params: InitializeParams): InitializeResult => {
-	connection.console.log("PowerBuilder Language Server initializing...");
+connection.onInitialize((): InitializeResult => {
+	connection.console.log('PowerBuilder Language Server initializing...');
 
 	return {
 		capabilities: {
@@ -52,18 +50,18 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 
 // Lifecycle: Initialized
 connection.onInitialized(() => {
-	connection.console.log("PowerBuilder Language Server initialized!");
+	connection.console.log('PowerBuilder Language Server initialized!');
 });
 
 // Lifecycle: Shutdown
 connection.onShutdown(() => {
-	connection.console.log("PowerBuilder Language Server shutting down...");
+	connection.console.log('PowerBuilder Language Server shutting down...');
 	languageService.clear();
 });
 
 // Lifecycle: Exit
 connection.onExit(() => {
-	connection.console.log("PowerBuilder Language Server exited.");
+	connection.console.log('PowerBuilder Language Server exited.');
 });
 
 // Documento aberto
@@ -71,11 +69,7 @@ documents.onDidOpen(({ document }) => {
 	connection.console.log(`Document opened: ${document.uri}`);
 
 	// Faz o parsing inicial
-	languageService.parseAndCache(
-		document.uri,
-		document.getText(),
-		document.version
-	);
+	languageService.parseAndCache(document.uri, document.getText(), document.version);
 
 	// Valida imediatamente
 	validateDocument(document.uri);
@@ -135,41 +129,32 @@ connection.onDidChangeTextDocument((params: DidChangeTextDocumentParams) => {
 	}
 
 	// Converte contentChanges para o tipo esperado pelo language service
-	const changes: TextDocumentContentChangeEvent[] = contentChanges.map(
-		(change) => ({
-			range: "range" in change ? change.range : undefined,
-			rangeLength: "rangeLength" in change ? change.rangeLength : undefined,
-			text: change.text,
-		})
-	);
+	const changes: TextDocumentContentChangeEvent[] = contentChanges.map((change) => ({
+		range: 'range' in change ? change.range : undefined,
+		rangeLength: 'rangeLength' in change ? change.rangeLength : undefined,
+		text: change.text,
+	}));
 
 	// Atualiza usando parsing incremental
 	const success = languageService.updateWithChanges(
 		textDocument.uri,
 		changes,
-		textDocument.version
+		textDocument.version,
 	);
 
 	if (!success) {
 		// Fallback: re-parse completo
 		connection.console.warn(
-			`Incremental update failed for ${textDocument.uri}, falling back to full parse`
+			`Incremental update failed for ${textDocument.uri}, falling back to full parse`,
 		);
-		languageService.parseAndCache(
-			textDocument.uri,
-			document.getText(),
-			document.version
-		);
+		languageService.parseAndCache(textDocument.uri, document.getText(), document.version);
 	}
 });
 
 // Feature: Hover
 connection.onHover((params: HoverParams) => {
 	try {
-		const hover = languageService.provideHover(
-			params.textDocument.uri,
-			params.position
-		);
+		const hover = languageService.provideHover(params.textDocument.uri, params.position);
 		return hover;
 	} catch (error) {
 		connection.console.error(`Error providing hover: ${error}`);
@@ -182,7 +167,7 @@ connection.onDefinition((params: DefinitionParams) => {
 	try {
 		const definition = languageService.findDefinition(
 			params.textDocument.uri,
-			params.position
+			params.position,
 		);
 		return definition;
 	} catch (error) {
@@ -194,9 +179,7 @@ connection.onDefinition((params: DefinitionParams) => {
 // Feature: Document Symbols
 connection.onDocumentSymbol((params: DocumentSymbolParams) => {
 	try {
-		const symbols = languageService.buildDocumentSymbols(
-			params.textDocument.uri
-		);
+		const symbols = languageService.buildDocumentSymbols(params.textDocument.uri);
 		return symbols;
 	} catch (error) {
 		connection.console.error(`Error building document symbols: ${error}`);
@@ -211,9 +194,7 @@ function validateDocument(uri: string): void {
 	try {
 		const diagnostics = languageService.validate(uri);
 		connection.sendDiagnostics({ uri, diagnostics });
-		connection.console.log(
-			`Sent ${diagnostics.length} diagnostic(s) for ${uri}`
-		);
+		connection.console.log(`Sent ${diagnostics.length} diagnostic(s) for ${uri}`);
 	} catch (error) {
 		connection.console.error(`Error validating document ${uri}: ${error}`);
 	}
@@ -225,4 +206,4 @@ documents.listen(connection);
 // Inicia o servidor
 connection.listen();
 
-connection.console.log("PowerBuilder Language Server started and listening...");
+connection.console.log('PowerBuilder Language Server started and listening...');

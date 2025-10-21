@@ -1,6 +1,7 @@
 
 import Parser from 'tree-sitter';
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver-types';
+
 import { collectErrors, getNodeRange } from '../utils/ast';
 
 /**

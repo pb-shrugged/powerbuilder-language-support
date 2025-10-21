@@ -1,16 +1,16 @@
-import { TreeSitterManager, TextDocumentContentChangeEvent } from './parser/TreeSitterManager';
-import { SymbolProvider } from './symbols/SymbolProvider';
-import { validateDocument } from './features/diagnostics';
-import { provideHover } from './features/hover';
-import { findDefinition } from './features/definition';
-import { buildDocumentSymbols } from './features/documentSymbol';
 import {
-  Position,
   Diagnostic,
+  DocumentSymbol,
   Hover,
   Location,
-  DocumentSymbol
-} from 'vscode-languageserver-types';
+  Position} from 'vscode-languageserver-types';
+
+import { findDefinition } from './features/definition';
+import { validateDocument } from './features/diagnostics';
+import { buildDocumentSymbols } from './features/documentSymbol';
+import { provideHover } from './features/hover';
+import { TextDocumentContentChangeEvent,TreeSitterManager } from './parser/TreeSitterManager';
+import { SymbolProvider } from './symbols/SymbolProvider';
 
 /**
  * PowerBuilder Language Service
@@ -104,6 +104,6 @@ export class PowerBuilderLanguageService {
 }
 
 // Exporta também os tipos e funções auxiliares
-export * from './utils/ast';
+export { TextDocumentContentChangeEvent,TreeSitterManager } from './parser/TreeSitterManager';
 export * from './symbols/SymbolProvider';
-export { TreeSitterManager, TextDocumentContentChangeEvent } from './parser/TreeSitterManager';
+export * from './utils/ast';

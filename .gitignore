@@ -1,4 +1,21 @@
-node_modules
-out
-.vscode-test
+
+# Build output
+vscode-client/out
+packages/**/out
 tsconfig.tsbuildinfo
+
+# Linter cache
+coverage/
+.eslintcache/
+.eslintcache
+
+# OS related
+.DS_Store
+*.log
+
+# NPM cache
+node_modules/
+package-lock.json
+
+# vscode dot files
+.vscode-test
