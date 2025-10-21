@@ -1,22 +1,24 @@
-import * as path from "path";
-import { ExtensionContext,workspace } from "vscode";
+import * as path from 'path';
+import { ExtensionContext, window, workspace } from 'vscode';
 import {
 	LanguageClient,
 	LanguageClientOptions,
 	ServerOptions,
 	TransportKind,
-} from "vscode-languageclient/node";
+} from 'vscode-languageclient/node';
 
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext): void {
-	console.log("PowerBuilder LSP extension is now active!");
-
-	const serverModule = context.asAbsolutePath(
-		path.join("..", "packages", "pb-language-server", "out", "server.js")
+	window.showInformationMessage(
+		'Initialize extension PowerBuilde Language Server Client',
 	);
 
-	const debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
+	const serverModule = context.asAbsolutePath(
+		path.join('..', 'packages', 'pb-language-server', 'out', 'server.js'),
+	);
+
+	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
 	const serverOptions: ServerOptions = {
 		run: {
@@ -31,28 +33,26 @@ export function activate(context: ExtensionContext): void {
 	};
 
 	const clientOptions: LanguageClientOptions = {
-		documentSelector: [{ scheme: "file", language: "powerbuilder" }],
+		documentSelector: [{ scheme: 'file', language: 'powerbuilder' }],
 		synchronize: {
-			fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
+			fileEvents: workspace.createFileSystemWatcher('**/.clientrc'),
 		},
 	};
 
 	client = new LanguageClient(
-		"powerbuilderLanguageServer",
-		"PowerBuilder Language Server",
+		'powerBuilderLanguageServer',
+		'PowerBuilder Language Server',
 		serverOptions,
-		clientOptions
+		clientOptions,
 	);
 
 	client.start();
-
-	console.log("PowerBuilder Language Client started");
 }
 
 export function deactivate(): Thenable<void> | undefined {
 	if (!client) {
 		return undefined;
 	}
-	console.log("PowerBuilder LSP extension is now deactivating...");
+
 	return client.stop();
 }

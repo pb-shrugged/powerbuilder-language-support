@@ -30,12 +30,37 @@
 				],
 				"configuration": "./language-configuration.json"
 			}
-		]
+		],
+		"configuration": {
+			"type": "object",
+			"title": "PowerBuilder Language Support Client Configuration",
+			"properties": {
+				"powerBuilderLanguageServer.maxNumberOfProblems": {
+					"scope": "resource",
+					"type": "number",
+					"default": 101,
+					"description": "Controls the maximum number of problems produced by the server."
+				},
+				"powerBuilderLanguageServer.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				}
+			}
+		}
 	},
 	"scripts": {
 		"build": "tsc -b",
 		"watch": "tsc -b --watch",
-		"clean": "rm -rf out"
+		"clean": "rm -rf out",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix"
 	},
 	"dependencies": {
 		"vscode-languageclient": "^9.0.1"
