@@ -1,0 +1,21 @@
+
+{
+  "name": "@powerbuilder-lsp/language-server",
+  "version": "0.1.0",
+  "description": "PowerBuilder Language Server Protocol implementation",
+  "main": "./out/server.js",
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -b --watch",
+    "clean": "rm -rf out"
+  },
+  "dependencies": {
+    "@powerbuilder-lsp/language-service": "^0.1.0",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}

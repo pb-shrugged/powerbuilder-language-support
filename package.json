@@ -1,0 +1,28 @@
+{
+	"name": "powerbuilder-language-support",
+	"version": "0.1.0",
+	"private": true,
+	"workspaces": [
+		"vscode-client",
+		"packages/*"
+	],
+	"scripts": {
+		"build": "npm run build --workspaces --if-present",
+		"watch": "npm run watch --workspaces --if-present",
+		"clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+		"test": "npm run test --workspaces --if-present",
+		"postinstall": "npm run build"
+	},
+	"engines": {
+		"node": ">=16.0.0",
+		"npm": ">=8.0.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.13.0",
+		"@stylistic/eslint-plugin": "^2.9.0",
+		"@types/node": "^20.10.0",
+		"eslint": "^9.13.0",
+		"typescript": "^5.3.0",
+		"typescript-eslint": "^8.39.0"
+	}
+}

@@ -1,0 +1,14 @@
+
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./out",
+    "rootDir": "./src"
+  },
+  "references": [
+    { "path": "../pb-language-service" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "out"]
+}

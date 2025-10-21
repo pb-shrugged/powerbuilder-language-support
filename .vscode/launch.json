@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Client",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode-client"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/vscode-client/out/**/*.js"
+      ],
+      "preLaunchTask": {
+        "type": "npm",
+        "script": "watch"
+      }
+    },
+    {
+      "name": "Attach to Server",
+      "type": "node",
+      "request": "attach",
+			"port": 6009,
+      "restart": true,
+      "outFiles": [
+        "${workspaceFolder}/packages/pb-language-server/out/**/*.js"
+      ]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Client + Server",
+      "configurations": [
+        "Launch Client",
+        "Attach to Server"
+      ],
+    }
+  ]
+}
