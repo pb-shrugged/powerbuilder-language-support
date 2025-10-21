@@ -1,7 +1,5 @@
 {
-	"files.exclude": {
-		"packages/**/out": true
-	},
+	"files.exclude": {},
 	"search.exclude": {
 		"out": true
 	},
