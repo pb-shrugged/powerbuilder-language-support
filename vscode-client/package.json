@@ -1,5 +1,5 @@
 {
-	"name": "powerbuilder-language-client",
+	"name": "@powerbuilder-language-support/powerbuilder-language-client",
 	"displayName": "PowerBuilder Language Support",
 	"description": "Language Server Protocol client for PowerBuilder",
 	"version": "0.1.0",
@@ -11,6 +11,7 @@
 		"Programming Languages"
 	],
 	"main": "./out/extension.js",
+	"types": "./out/extension.",
 	"activationEvents": [
 		"onLanguage"
 	],
@@ -72,7 +73,7 @@
 	"scripts": {
 		"build": "tsc -b",
 		"watch": "tsc -b --watch",
-		"clean": "rm -rf out",
+		"clean": "rm -rf out && rm -rf node_modules && rm -f tsconfig.tsbuildinfo",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix"
 	},

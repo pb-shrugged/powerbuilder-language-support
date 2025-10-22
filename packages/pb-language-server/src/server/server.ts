@@ -4,6 +4,7 @@ import {
 	PowerBuilderLanguageService,
 	TextDocumentContentChangeEvent,
 } from '@powerbuilder-language-support/language-service';
+import { logger } from '@powerbuilder-language-support/logger';
 import * as LSP from 'vscode-languageserver/node';
 
 import DocumentManager from './document-manager';
@@ -119,6 +120,8 @@ export default class PowerBuilderServer {
 		this.initialized = true;
 
 		this.connection.console.log('PowerBuilder Language Server initialized!');
+		console.log('from console PowerBuilder Language Server initialized!');
+		logger.getLogger().info('from logger PowerBuilder Language Server initialized!');
 	}
 
 	private onShutdown() {
