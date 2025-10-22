@@ -78,7 +78,8 @@
 		"lint:fix": "eslint . --fix"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^9.0.1"
+		"vscode-languageclient": "^9.0.1",
+		"@powerbuilder-language-support/logger": "^0.1.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.10.0",
