@@ -1,3 +1,4 @@
+import { logger } from '@powerbuilder-language-support/logger';
 import {
 	createConnection,
 	InitializeParams,
@@ -11,7 +12,7 @@ import PowerBuilderServer from './server/server';
 const connection = createConnection(ProposedFeatures.all);
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
-	connection.console.log('PowerBuilder Language Server initializing...');
+	logger.getLogger().info('PowerBuilder Language Server initializing...');
 
 	const server = PowerBuilderServer.initialize({ connection, initializeParams: params });
 	server.register(connection);
@@ -24,4 +25,4 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
 // Inicia o servidor
 connection.listen();
 
-connection.console.log('PowerBuilder Language Server started and listening...');
+logger.getLogger().info('PowerBuilder Language Server started and listening...');

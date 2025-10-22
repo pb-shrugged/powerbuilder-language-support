@@ -119,18 +119,16 @@ export default class PowerBuilderServer {
 	private async onInitialized() {
 		this.initialized = true;
 
-		this.connection.console.log('PowerBuilder Language Server initialized!');
-		console.log('from console PowerBuilder Language Server initialized!');
-		logger.getLogger().info('from logger PowerBuilder Language Server initialized!');
+		logger.getLogger().info('PowerBuilder Language Server initialized!');
 	}
 
 	private onShutdown() {
-		this.connection.console.log('PowerBuilder Language Server shutting down...');
+		logger.getLogger().info('PowerBuilder Language Server shutting down...');
 		this.powerbuilderLanguageService.clear();
 	}
 
 	private onExit() {
-		this.connection.console.log('PowerBuilder Language Server exited.');
+		logger.getLogger().info('PowerBuilder Language Server exited.');
 	}
 
 	private onDidChangeTextDocument(params: LSP.DidChangeTextDocumentParams) {
@@ -154,9 +152,11 @@ export default class PowerBuilderServer {
 		);
 
 		if (!success) {
-			this.connection.console.warn(
-				`Incremental update failed for ${textDocument.uri}, falling back to full parse`,
-			);
+			logger
+				.getLogger()
+				.warn(
+					`Incremental update failed for ${textDocument.uri}, falling back to full parse`,
+				);
 			this.powerbuilderLanguageService.parseAndCache(
 				textDocument.uri,
 				document.getText(),
@@ -173,7 +173,7 @@ export default class PowerBuilderServer {
 			);
 			return hover;
 		} catch (error) {
-			this.connection.console.error(`Error providing hover: ${error}`);
+			logger.getLogger().error(`Error providing hover: ${error}`);
 			return null;
 		}
 	}
@@ -186,7 +186,7 @@ export default class PowerBuilderServer {
 			);
 			return definition;
 		} catch (error) {
-			this.connection.console.error(`Error finding definition: ${error}`);
+			logger.getLogger().error(`Error finding definition: ${error}`);
 			return null;
 		}
 	}
@@ -198,7 +198,7 @@ export default class PowerBuilderServer {
 			);
 			return symbols;
 		} catch (error) {
-			this.connection.console.error(`Error building document symbols: ${error}`);
+			logger.getLogger().error(`Error building document symbols: ${error}`);
 			return [];
 		}
 	}

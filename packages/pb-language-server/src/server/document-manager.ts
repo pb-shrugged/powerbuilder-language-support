@@ -1,4 +1,5 @@
 import { PowerBuilderLanguageService } from '@powerbuilder-language-support/language-service';
+import { logger } from '@powerbuilder-language-support/logger';
 import {
 	Connection,
 	TextDocumentChangeEvent,
@@ -63,7 +64,7 @@ export default class DocumentManager {
 	}
 
 	private onDidOpen({ document }: TextDocumentChangeEvent<TextDocument>) {
-		this.connection.console.log(`Document opened: ${document.uri}`);
+		logger.getLogger().info(`Document opened: ${document.uri}`);
 
 		this.powerbuilderLanguageService.parseAndCache(
 			document.uri,
@@ -75,7 +76,7 @@ export default class DocumentManager {
 	}
 
 	private onDidChangeContent({ document }: TextDocumentChangeEvent<TextDocument>): void {
-		this.connection.console.log(`Document changed: ${document.uri}`);
+		logger.getLogger().info(`Document changed: ${document.uri}`);
 
 		this.setCurrentDocument(document);
 		if (this.server.isInitialized()) {
@@ -94,12 +95,12 @@ export default class DocumentManager {
 	}
 
 	private onDidSave({ document }: TextDocumentChangeEvent<TextDocument>) {
-		this.connection.console.log(`Document saved: ${document.uri}`);
+		logger.getLogger().info(`Document saved: ${document.uri}`);
 		this.validateDocument(document.uri);
 	}
 
 	private onDidClose(event: TextDocumentChangeEvent<TextDocument>) {
-		this.connection.console.log(`Document closed: ${event.document.uri}`);
+		logger.getLogger().info(`Document closed: ${event.document.uri}`);
 
 		const timer = this.diagnosticTimers.get(event.document.uri);
 		if (timer) {
@@ -116,9 +117,9 @@ export default class DocumentManager {
 		try {
 			const diagnostics = this.powerbuilderLanguageService.validate(uri);
 			this.connection.sendDiagnostics({ uri, diagnostics });
-			this.connection.console.log(`Sent ${diagnostics.length} diagnostic(s) for ${uri}`);
+			logger.getLogger().info(`Sent ${diagnostics.length} diagnostic(s) for ${uri}`);
 		} catch (error) {
-			this.connection.console.error(`Error validating document ${uri}: ${error}`);
+			logger.getLogger().error(`Error validating document ${uri}: ${error}`);
 		}
 	}
 
