@@ -3,10 +3,11 @@
 	"version": "0.1.0",
 	"description": "PowerBuilder Language Server Protocol implementation",
 	"main": "./out/server/server.js",
+	"types": "./out/server/server.d.ts",
 	"scripts": {
 		"build": "tsc -b",
 		"watch": "tsc -b --watch",
-		"clean": "rm -rf out",
+		"clean": "rm -rf out && rm -rf node_modules && rm -f tsconfig.tsbuildinfo",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix"
 	},

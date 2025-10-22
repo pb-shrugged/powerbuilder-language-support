@@ -7,7 +7,7 @@
 	"scripts": {
 		"build": "tsc -b",
 		"watch": "tsc -b --watch",
-		"clean": "rm -rf out",
+		"clean": "rm -rf out && rm -rf node_modules && rm -f tsconfig.tsbuildinfo",
 		"test": "jest",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix"
