@@ -7,6 +7,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import PowerBuilderServer from './server';
+import * as ServerConfig from './server-config';
 
 export interface DocumentManagerConfig {
 	diagnosticBounceMs: number;
@@ -25,19 +26,19 @@ export default class DocumentManager {
 	constructor({
 		connection,
 		powerbuilderLanguageService,
-		config,
 		server,
 	}: {
 		connection: Connection;
 		powerbuilderLanguageService: PowerBuilderLanguageService;
-		config: DocumentManagerConfig;
 		server: PowerBuilderServer;
 	}) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		this.config = {} as any;
+
 		this.documents = new TextDocuments<TextDocument>(TextDocument);
 		this.connection = connection;
 		this.powerbuilderLanguageService = powerbuilderLanguageService;
 		this.diagnosticTimers = new Map<string, NodeJS.Timeout>();
-		this.config = { ...config };
 
 		this.server = server;
 	}
@@ -49,6 +50,16 @@ export default class DocumentManager {
 		this.documents.onDidClose(this.onDidClose.bind(this));
 
 		this.documents.listen(connection);
+	}
+
+	public updateConfiguration(config: DocumentManagerConfig) {
+		this.config = { ...config };
+	}
+
+	public GetConfigFromServer(config: ServerConfig.Config): DocumentManagerConfig {
+		return {
+			diagnosticBounceMs: config.diagnosticBounceMs,
+		};
 	}
 
 	private onDidOpen({ document }: TextDocumentChangeEvent<TextDocument>) {

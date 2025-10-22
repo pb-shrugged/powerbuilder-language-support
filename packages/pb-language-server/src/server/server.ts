@@ -26,20 +26,20 @@ export default class PowerBuilderServer {
 		capabilities: LSP.ClientCapabilities;
 		connection: LSP.Connection;
 	}) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		this.config = {} as any; // NOTE: configured in updateConfiguration
+
 		this.powerbuilderLanguageService = powerbuilderLanguageService;
 		this.clientCapabilities = capabilities;
 		this.connection = connection;
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		this.config = {} as any; // NOTE: configured in updateConfiguration
-		this.updateConfiguration(config.getDefaultConfiguration());
 
 		this.documentManager = new DocumentManager({
 			server: this,
 			connection: this.connection,
 			powerbuilderLanguageService: this.powerbuilderLanguageService,
-			config: { diagnosticBounceMs: this.config.diagnosticBounceMs },
 		});
+
+		this.updateConfiguration(config.getDefaultConfiguration());
 	}
 
 	public static initialize({
@@ -65,7 +65,11 @@ export default class PowerBuilderServer {
 	private updateConfiguration(configObject: config.Config): boolean {
 		const newConfig = config.ConfigSchema.parse(configObject);
 		if (!isDeepStrictEqual(this.config, newConfig)) {
-			this.config = newConfig;
+			this.config = { ...newConfig };
+			this.documentManager.updateConfiguration(
+				this.documentManager.GetConfigFromServer(this.config),
+			);
+
 			return true;
 		}
 
@@ -103,7 +107,7 @@ export default class PowerBuilderServer {
 		this.connection.onExit(this.onExit.bind(this));
 		this.connection.onDidChangeTextDocument(this.onDidChangeTextDocument.bind(this));
 
-		// LSP capabilities.
+		// lsp capabilities.
 		this.connection.onHover(this.onHover.bind(this));
 		this.connection.onDefinition(this.onDefinition.bind(this));
 		this.connection.onDocumentSymbol(this.onDocumentSymbol.bind(this));
