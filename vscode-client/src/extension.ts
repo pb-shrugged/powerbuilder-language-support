@@ -9,33 +9,56 @@ import {
 
 let client: LanguageClient;
 
-export function activate(context: ExtensionContext): void {
+export const CONFIGURATION_SECTION = 'powerBuilderLanguageServer'; // matching the package.json configuration section
+
+export async function activate(context: ExtensionContext): Promise<void> {
 	window.showInformationMessage(
-		'Initialize extension PowerBuilde Language Server Client',
+		'Initialize extension PowerBuilder Language Support Client',
 	);
 
-	const serverModule = context.asAbsolutePath(
-		path.join('..', 'packages', 'pb-language-server', 'out', 'server.js'),
-	);
+	const config = workspace.getConfiguration(CONFIGURATION_SECTION);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const env: any = {
+		...process.env,
+		BASH_IDE_LOG_LEVEL: config.get('logLevel', ''),
+	};
 
-	const debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
-
-	const serverOptions: ServerOptions = {
-		run: {
-			module: serverModule,
-			transport: TransportKind.ipc,
-		},
-		debug: {
-			module: serverModule,
-			transport: TransportKind.ipc,
-			options: debugOptions,
+	const serverExecutable = {
+		module: context.asAbsolutePath(
+			path.join('..', 'packages', 'pb-language-server', 'out', 'server.js'),
+		),
+		transport: TransportKind.ipc,
+		options: {
+			env,
 		},
 	};
 
+	const debugServerExecutable = {
+		...serverExecutable,
+		options: {
+			...serverExecutable.options,
+			execArgv: ['--nolazy', '--inspect=6019'],
+		},
+	};
+
+	const serverOptions: ServerOptions = {
+		run: serverExecutable,
+		debug: debugServerExecutable,
+	};
+
 	const clientOptions: LanguageClientOptions = {
-		documentSelector: [{ scheme: 'file', language: 'powerbuilder' }],
+		documentSelector: [
+			{ scheme: 'file', language: 'powerbuilder' },
+			{ scheme: 'file', pattern: '**/*.{sra,srf,srs,sru,srw,srm,srd,srq}' },
+		],
 		synchronize: {
-			fileEvents: workspace.createFileSystemWatcher('**/.clientrc'),
+			fileEvents: [
+				workspace.createFileSystemWatcher('**/.clientrc'),
+				workspace.createFileSystemWatcher('**/*.{sra,srf,srs,sru,srw,srm,srd,srq}'),
+				workspace.createFileSystemWatcher('**/powerbuilder.json'), // potential config file
+				workspace.createFileSystemWatcher('**/.powerbuilder/**'), // potential settings directory
+			],
+			configurationSection: CONFIGURATION_SECTION,
 		},
 	};
 
@@ -45,8 +68,13 @@ export function activate(context: ExtensionContext): void {
 		serverOptions,
 		clientOptions,
 	);
+	client.registerProposedFeatures();
 
-	client.start();
+	try {
+		await client.start();
+	} catch (error) {
+		client.error(`Start failed`, error, 'force');
+	}
 }
 
 export function deactivate(): Thenable<void> | undefined {

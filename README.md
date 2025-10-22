@@ -120,7 +120,7 @@ npm run build
 
 Isso irá:
 - Iniciar a extensão em uma nova janela do VSCode (Extension Host)
-- Anexar o debugger ao servidor LSP na porta 6009
+- Anexar o debugger ao servidor LSP na porta 6019
 - Permitir debug simultâneo de cliente e servidor
 
 ### Debug Individual

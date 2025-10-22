@@ -20,7 +20,7 @@
       "name": "Attach to Server",
       "type": "node",
       "request": "attach",
-			"port": 6009,
+			"port": 6019,
       "restart": true,
       "outFiles": [
         "${workspaceFolder}/packages/pb-language-server/out/**/*.js"
