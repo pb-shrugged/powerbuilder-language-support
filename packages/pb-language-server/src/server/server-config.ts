@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CONFIGURATION_SECTION = 'powerBuilderLanguageServer';
+export const CONFIGURATION_SECTION = 'powerbuilderLanguageServer';
 
 export const ConfigSchema = z.object({
 	maxNumberOfProblems: z.number().int().min(0).default(100),

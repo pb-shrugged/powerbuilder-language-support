@@ -135,6 +135,8 @@ export default class PowerBuilderServer {
 		const { textDocument, contentChanges } = params;
 		const document = this.documentManager.getDocumentByURI(textDocument.uri);
 
+		logger.getLogger().info('onDidChangeTextDocument');
+
 		if (!document) {
 			return;
 		}

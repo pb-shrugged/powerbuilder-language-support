@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { ExtensionContext, window, workspace } from 'vscode';
+import { commands, ExtensionContext, window, workspace } from 'vscode';
 import {
 	LanguageClient,
 	LanguageClientOptions,
@@ -9,7 +9,7 @@ import {
 
 let client: LanguageClient;
 
-export const CONFIGURATION_SECTION = 'powerBuilderLanguageServer'; // matching the package.json configuration section
+export const CONFIGURATION_SECTION = 'powerbuilderLanguageServer'; // matching the package.json configuration section
 
 export async function activate(context: ExtensionContext): Promise<void> {
 	window.showInformationMessage(
@@ -63,12 +63,14 @@ export async function activate(context: ExtensionContext): Promise<void> {
 	};
 
 	client = new LanguageClient(
-		'powerBuilderLanguageServer',
+		'powerbuilderLanguageServer',
 		'PowerBuilder Language Server',
 		serverOptions,
 		clientOptions,
 	);
 	client.registerProposedFeatures();
+
+	registerCommands(context);
 
 	try {
 		await client.start();
@@ -83,4 +85,46 @@ export function deactivate(): Thenable<void> | undefined {
 	}
 
 	return client.stop();
+}
+
+function registerCommands(context: ExtensionContext) {
+	// Command to restart the language server
+	const restartCommand = commands.registerCommand(
+		'powerbuilderLanguageSupport.restartServer',
+		async () => {
+			if (client) {
+				await client.stop();
+				await client.start();
+				window.showInformationMessage('PowerBuilder Language Server restarted');
+			}
+		},
+	);
+
+	// Command to show server status
+	const statusCommand = commands.registerCommand(
+		'powerbuilderLanguageSupport.showServerStatus',
+		() => {
+			if (client) {
+				const state = client.state;
+				const stateNames = ['Stopped', 'Starting', 'Running'];
+				const stateName = stateNames[state] || 'Unknown';
+
+				window.showInformationMessage(
+					`PowerBuilder Language Server LSP Status: ${stateName}`,
+				);
+			} else {
+				window.showWarningMessage('PowerBuilder Language Server is not initialized');
+			}
+		},
+	);
+
+	// Command to show server output
+	const showOutputCommand = commands.registerCommand(
+		'powerbuilderLanguageSupport.showOutput',
+		() => {
+			client?.outputChannel.show();
+		},
+	);
+
+	context.subscriptions.push(restartCommand, statusCommand, showOutputCommand);
 }

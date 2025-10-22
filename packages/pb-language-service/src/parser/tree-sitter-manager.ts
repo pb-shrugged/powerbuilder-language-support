@@ -1,4 +1,5 @@
 import PowerBuilder from '@pb-shrugged/tree-sitter-powerbuilder';
+import { logger } from '@powerbuilder-language-support/logger';
 import Parser from 'tree-sitter';
 import { Range } from 'vscode-languageserver-types';
 
@@ -135,8 +136,14 @@ export class TreeSitterManager {
 			}
 		}
 
+		logger.getLogger().info('before repaser');
+		logger.getLogger().info('before repaser', tree.getText(tree.rootNode));
+
 		// Re-parseia com a árvore editada (parsing incremental)
 		tree = this.parser.parse(text, tree);
+
+		logger.getLogger().info('after repaser');
+		logger.getLogger().info('after repaser', tree.getText(tree.rootNode));
 
 		// Atualiza o cache
 		this.documents.set(uri, {
