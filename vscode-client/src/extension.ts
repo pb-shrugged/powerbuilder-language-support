@@ -25,7 +25,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
 	const serverExecutable = {
 		module: context.asAbsolutePath(
-			path.join('..', 'packages', 'pb-language-server', 'out', 'server.js'),
+			path.join('..', 'packages', 'pb-language-server', 'out', 'index-node-server.js'),
 		),
 		transport: TransportKind.ipc,
 		options: {
