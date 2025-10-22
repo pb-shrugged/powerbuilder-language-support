@@ -3,7 +3,7 @@ import {
 	Connection,
 	TextDocumentChangeEvent,
 	TextDocuments,
-} from 'vscode-languageserver';
+} from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import PowerBuilderServer from './server';

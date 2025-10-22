@@ -2,7 +2,7 @@
 	"name": "@powerbuilder-language-support/language-server",
 	"version": "0.1.0",
 	"description": "PowerBuilder Language Server Protocol implementation",
-	"main": "./out/server.js",
+	"main": "./out/server/server.js",
 	"scripts": {
 		"build": "tsc -b",
 		"watch": "tsc -b --watch",
