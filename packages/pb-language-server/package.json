@@ -11,7 +11,7 @@
 		"lint:fix": "eslint . --fix"
 	},
 	"dependencies": {
-		"@powerbuilder-lsp/language-service": "^0.1.0",
+		"@powerbuilder-language-support/language-service": "^0.1.0",
 		"vscode-languageserver": "^9.0.1",
 		"vscode-languageserver-textdocument": "^1.0.11"
 	},

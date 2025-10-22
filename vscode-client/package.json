@@ -11,6 +11,9 @@
 		"Programming Languages"
 	],
 	"main": "./out/extension.js",
+	"activationEvents": [
+		"onLanguage"
+	],
 	"contributes": {
 		"languages": [
 			{
@@ -51,6 +54,17 @@
 					],
 					"default": "off",
 					"description": "Traces the communication between VS Code and the language server."
+				},
+				"powerBuilderLanguageServer.logLevel": {
+					"type": "string",
+					"default": "info",
+					"enum": [
+						"debug",
+						"info",
+						"warning",
+						"error"
+					],
+					"description": "Controls the log level of the language server."
 				}
 			}
 		}

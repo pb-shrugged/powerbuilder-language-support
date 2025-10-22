@@ -18,7 +18,7 @@ O MVP do PowerBuilder LSP oferece as seguintes funcionalidades:
 O projeto segue uma arquitetura em camadas com monorepo:
 
 ```
-powerbuilder-lsp/
+powerbuilder-language-support/
 ├── client/                          # Extensão VSCode
 │   ├── src/
 │   │   └── extension.ts            # Ativa extensão e inicia LanguageClient
@@ -70,7 +70,7 @@ powerbuilder-lsp/
 ### Instalação
 
 ```bash
-cd ~/powerbuilder-lsp
+cd ~/powerbuilder-language-support
 npm install
 ```
 
@@ -111,7 +111,7 @@ npm run build
 
 1. Abra o projeto no VSCode:
    ```bash
-   code ~/powerbuilder-lsp
+   code ~/powerbuilder-language-support
    ```
 
 2. Pressione **F5** ou vá em **Run > Start Debugging**

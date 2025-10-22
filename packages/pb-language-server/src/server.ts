@@ -1,7 +1,7 @@
 import {
 	PowerBuilderLanguageService,
 	TextDocumentContentChangeEvent,
-} from '@powerbuilder-lsp/language-service';
+} from '@powerbuilder-language-support/language-service';
 import {
 	createConnection,
 	DefinitionParams,

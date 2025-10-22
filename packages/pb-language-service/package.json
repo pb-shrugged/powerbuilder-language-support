@@ -1,5 +1,5 @@
 {
-	"name": "@powerbuilder-lsp/language-service",
+	"name": "@powerbuilder-language-support/language-service",
 	"version": "0.1.0",
 	"description": "PowerBuilder language service library",
 	"main": "./out/index.js",
