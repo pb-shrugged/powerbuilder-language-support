@@ -8,13 +8,13 @@ import {
 
 import { findDefinition } from './features/definition';
 import { validateDocument } from './features/diagnostics';
-import { buildDocumentSymbols } from './features/documentSymbol';
+import { buildDocumentSymbols } from './features/document-symbol';
 import { provideHover } from './features/hover';
 import {
 	TextDocumentContentChangeEvent,
 	TreeSitterManager,
 } from './parser/tree-sitter-manager';
-import { SymbolProvider } from './symbols/SymbolProvider';
+import { SymbolProvider } from './symbols/symbol-provider';
 
 /**
  * PowerBuilder Language Service
@@ -112,5 +112,5 @@ export {
 	TextDocumentContentChangeEvent,
 	TreeSitterManager,
 } from './parser/tree-sitter-manager';
-export * from './symbols/SymbolProvider';
+export * from './symbols/symbol-provider';
 export * from './utils/ast';

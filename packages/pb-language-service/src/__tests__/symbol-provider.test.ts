@@ -1,7 +1,7 @@
 import { SymbolKind } from 'vscode-languageserver-types';
 
 import { TreeSitterManager } from '../parser/tree-sitter-manager';
-import { SymbolProvider } from '../symbols/SymbolProvider';
+import { SymbolProvider } from '../symbols/symbol-provider';
 
 describe('SymbolProvider', () => {
 	let manager: TreeSitterManager;
