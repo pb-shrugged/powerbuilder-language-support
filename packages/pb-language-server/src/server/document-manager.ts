@@ -75,23 +75,34 @@ export default class DocumentManager {
 		this.validateDocument(document.uri);
 	}
 
-	private onDidChangeContent({ document }: TextDocumentChangeEvent<TextDocument>): void {
+	private onDidChangeContent(event: TextDocumentChangeEvent<TextDocument>): void {
+		if (!this.server.isInitialized()) {
+			return;
+		}
+
+		const { document } = event;
+
 		logger.getLogger().info(`Document changed: ${document.uri}`);
 
 		this.setCurrentDocument(document);
-		if (this.server.isInitialized()) {
-			const existingTimer = this.diagnosticTimers.get(document.uri);
-			if (existingTimer) {
-				clearTimeout(existingTimer);
-			}
 
-			const timer = setTimeout(() => {
-				this.validateDocument(document.uri);
-				this.diagnosticTimers.delete(document.uri);
-			}, this.config.diagnosticBounceMs);
+		this.powerbuilderLanguageService.parseAndCache(
+			document.uri,
+			document.getText(),
+			document.version,
+		);
 
-			this.diagnosticTimers.set(document.uri, timer);
+		const existingTimer = this.diagnosticTimers.get(document.uri);
+		if (existingTimer) {
+			clearTimeout(existingTimer);
 		}
+
+		const timer = setTimeout(() => {
+			this.validateDocument(document.uri);
+			this.diagnosticTimers.delete(document.uri);
+		}, this.config.diagnosticBounceMs);
+
+		this.diagnosticTimers.set(document.uri, timer);
 	}
 
 	private onDidSave({ document }: TextDocumentChangeEvent<TextDocument>) {

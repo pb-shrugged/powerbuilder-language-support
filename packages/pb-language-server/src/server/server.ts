@@ -17,15 +17,18 @@ export default class PowerBuilderServer {
 	private connection: LSP.Connection;
 	private documentManager: DocumentManager;
 	private initialized = false;
+	private workspaceFolders?: LSP.WorkspaceFolder[] | null;
 
 	private constructor({
 		powerbuilderLanguageService,
 		capabilities,
 		connection,
+		workspaceFolders,
 	}: {
 		powerbuilderLanguageService: PowerBuilderLanguageService;
 		capabilities: LSP.ClientCapabilities;
 		connection: LSP.Connection;
+		workspaceFolders?: LSP.WorkspaceFolder[] | null;
 	}) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		this.config = {} as any; // NOTE: configured in updateConfiguration
@@ -33,6 +36,7 @@ export default class PowerBuilderServer {
 		this.powerbuilderLanguageService = powerbuilderLanguageService;
 		this.clientCapabilities = capabilities;
 		this.connection = connection;
+		this.workspaceFolders = workspaceFolders;
 
 		this.documentManager = new DocumentManager({
 			server: this,
@@ -52,12 +56,13 @@ export default class PowerBuilderServer {
 	}): PowerBuilderServer {
 		const powerbuilderLanguageService = new PowerBuilderLanguageService();
 
-		const capabilities = initializeParams.capabilities;
+		const { capabilities, workspaceFolders } = initializeParams;
 
 		const server = new PowerBuilderServer({
 			powerbuilderLanguageService,
 			connection,
 			capabilities,
+			workspaceFolders,
 		});
 
 		return server;
@@ -82,6 +87,12 @@ export default class PowerBuilderServer {
 	 */
 	public getCapabilities(): LSP.ServerCapabilities {
 		return {
+			workspace: {
+				workspaceFolders: {
+					supported: true,
+					changeNotifications: true,
+				},
+			},
 			textDocumentSync: {
 				openClose: true,
 				change: LSP.TextDocumentSyncKind.Incremental,
@@ -91,7 +102,9 @@ export default class PowerBuilderServer {
 			},
 			hoverProvider: true,
 			definitionProvider: true,
+			referencesProvider: true,
 			documentSymbolProvider: true,
+			workspaceSymbolProvider: true,
 		};
 	}
 
@@ -106,7 +119,11 @@ export default class PowerBuilderServer {
 		this.connection.onInitialized(this.onInitialized.bind(this));
 		this.connection.onShutdown(this.onShutdown.bind(this));
 		this.connection.onExit(this.onExit.bind(this));
-		this.connection.onDidChangeTextDocument(this.onDidChangeTextDocument.bind(this));
+
+		// This part is already managed by this.documentManager
+		// this.connection.onDidOpenTextDocument(this.onDidOpenTextDocument.bind(this));
+		// this.connection.onDidChangeTextDocument(this.onDidChangeTextDocument.bind(this));
+		// this.connection.onDidCloseTextDocument(this.onDidCloseTextDocument.bind(this));
 
 		// lsp capabilities.
 		this.connection.onHover(this.onHover.bind(this));
@@ -131,11 +148,16 @@ export default class PowerBuilderServer {
 		logger.getLogger().info('PowerBuilder Language Server exited.');
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	private onDidOpenTextDocument(params: LSP.DidOpenTextDocumentParams) {
+		logger.getLogger().info('onDidOpenTextDocument');
+	}
+
 	private onDidChangeTextDocument(params: LSP.DidChangeTextDocumentParams) {
+		logger.getLogger().info('onDidChangeTextDocument');
+
 		const { textDocument, contentChanges } = params;
 		const document = this.documentManager.getDocumentByURI(textDocument.uri);
-
-		logger.getLogger().info('onDidChangeTextDocument');
 
 		if (!document) {
 			return;
@@ -165,6 +187,11 @@ export default class PowerBuilderServer {
 				document.version,
 			);
 		}
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	private onDidCloseTextDocument(params: LSP.DidCloseTextDocumentParams) {
+		logger.getLogger().info('onDidCloseTextDocument');
 	}
 
 	private onHover(params: LSP.HoverParams) {
