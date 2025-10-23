@@ -3,6 +3,9 @@
 vscode-client/out
 packages/**/out
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 # Linter cache
 coverage/
 .eslintcache/
