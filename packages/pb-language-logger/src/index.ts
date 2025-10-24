@@ -1,19 +1,4 @@
-import winston from 'winston';
+import Logger from './logger/logger';
 
-export class Logger {
-	private logger: winston.Logger;
-
-	public constructor() {
-		this.logger = winston.createLogger({
-			transports: [new winston.transports.Console()],
-		});
-	}
-
-	public getLogger() {
-		return this.logger;
-	}
-
-	public addTransport() {}
-}
-
+export * from './logger/logger';
 export const logger = new Logger();

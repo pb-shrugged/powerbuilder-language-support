@@ -1,7 +1,8 @@
 import Parser from 'tree-sitter';
 import { Position, Range, SymbolKind } from 'vscode-languageserver-types';
 
-import { getNodeRange, getNodeText } from '../utils/ast';
+import * as TreeSitterUtils from '../parser/tree-sitter-ast-utils';
+import * as TreeSitterTypes from '../parser/tree-sitter-types';
 
 export interface Symbol {
 	name: string;
@@ -21,15 +22,14 @@ export class SymbolProvider {
 	 */
 	public getDocumentSymbols(tree: Parser.Tree): Symbol[] {
 		const symbols: Symbol[] = [];
-		const rootNode = tree.rootNode;
 
-		// Percorre os filhos diretos do root procurando por declarações
-		for (const node of rootNode.namedChildren) {
-			const symbol = this.extractSymbol(node);
-			if (symbol) {
-				symbols.push(symbol);
-			}
-		}
+		const documentMainNodeTypes = TreeSitterUtils.captureDocumentMainNodeTypes(tree);
+
+		const functionSymbols = this.extractFunctionSymbols(
+			documentMainNodeTypes.functionMatch,
+		);
+
+		symbols.push(...functionSymbols);
 
 		return symbols;
 	}
@@ -46,7 +46,7 @@ export class SymbolProvider {
 			return null;
 		}
 
-		const identifierText = getNodeText(node);
+		const identifierText = TreeSitterUtils.getNodeText(node);
 
 		// Procura um símbolo com o mesmo nome
 		const matchingSymbol = symbols.find((s) => s.name === identifierText);
@@ -84,15 +84,15 @@ export class SymbolProvider {
 		const type = node.type;
 
 		// Function declaration
-		if (type === 'function_declaration' || type === 'function_definition') {
-			const nameNode = node.childForFieldName('name');
-			if (nameNode) {
+		if (type === TreeSitterTypes.NodeType.Function) {
+			const nodeName = TreeSitterUtils.getFunctionImplementationName(node);
+			if (nodeName) {
 				return {
-					name: getNodeText(nameNode),
+					name: nodeName,
 					kind: SymbolKind.Function,
-					range: getNodeRange(node),
-					selectionRange: getNodeRange(nameNode),
-					detail: this.getFunctionSignature(node),
+					range: TreeSitterUtils.getNodeRange(node),
+					selectionRange: TreeSitterUtils.getNodeRange(node),
+					detail: '', // this.getFunctionSignature(node),
 					node,
 				};
 			}
@@ -104,11 +104,11 @@ export class SymbolProvider {
 			if (nameNode) {
 				const typeNode = node.childForFieldName('type');
 				return {
-					name: getNodeText(nameNode),
+					name: TreeSitterUtils.getNodeText(nameNode),
 					kind: SymbolKind.Variable,
-					range: getNodeRange(node),
-					selectionRange: getNodeRange(nameNode),
-					detail: typeNode ? getNodeText(typeNode) : undefined,
+					range: TreeSitterUtils.getNodeRange(node),
+					selectionRange: TreeSitterUtils.getNodeRange(nameNode),
+					detail: typeNode ? TreeSitterUtils.getNodeText(typeNode) : undefined,
 					node,
 				};
 			}
@@ -123,10 +123,10 @@ export class SymbolProvider {
 			const nameNode = node.childForFieldName('name') || this.findIdentifierInNode(node);
 			if (nameNode) {
 				return {
-					name: getNodeText(nameNode),
+					name: TreeSitterUtils.getNodeText(nameNode),
 					kind: SymbolKind.Class,
-					range: getNodeRange(node),
-					selectionRange: getNodeRange(nameNode),
+					range: TreeSitterUtils.getNodeRange(node),
+					selectionRange: TreeSitterUtils.getNodeRange(nameNode),
 					node,
 				};
 			}
@@ -137,10 +137,10 @@ export class SymbolProvider {
 			const nameNode = node.childForFieldName('name') || this.findIdentifierInNode(node);
 			if (nameNode) {
 				return {
-					name: getNodeText(nameNode),
+					name: TreeSitterUtils.getNodeText(nameNode),
 					kind: SymbolKind.Event,
-					range: getNodeRange(node),
-					selectionRange: getNodeRange(nameNode),
+					range: TreeSitterUtils.getNodeRange(node),
+					selectionRange: TreeSitterUtils.getNodeRange(nameNode),
 					node,
 				};
 			}
@@ -149,27 +149,30 @@ export class SymbolProvider {
 		return null;
 	}
 
-	/**
-	 * Obtém a assinatura de uma função
-	 */
-	private getFunctionSignature(node: Parser.SyntaxNode): string {
-		const nameNode = node.childForFieldName('name');
-		const paramsNode = node.childForFieldName('parameters');
-		const returnTypeNode = node.childForFieldName('return_type');
+	private extractFunctionSymbols(functionMatch: TreeSitterTypes.FunctionMatch): Symbol[] {
+		const functionSymbol = new Array<Symbol>();
 
-		let signature = nameNode ? getNodeText(nameNode) : 'function';
+		functionMatch.queryMatch.forEach((match) => {
+			const nameNode = match.captures.at(functionMatch.nameCapture.index)?.node;
+			const functionDeclarationNode = match.captures.at(
+				functionMatch.declarationCapture.index,
+			)?.node;
 
-		if (paramsNode) {
-			signature += ` (${getNodeText(paramsNode)})`;
-		} else {
-			signature += ' ()';
-		}
+			if (nameNode && functionDeclarationNode) {
+				const nodeRange = TreeSitterUtils.getNodeRange(nameNode);
 
-		if (returnTypeNode) {
-			signature += ` returns ${getNodeText(returnTypeNode)}`;
-		}
+				functionSymbol.push({
+					name: nameNode.text,
+					kind: SymbolKind.Function,
+					range: nodeRange,
+					selectionRange: nodeRange,
+					detail: 'teste', // TODO this.getFunctionSignature(functionDeclarationNode),
+					node: nameNode,
+				});
+			}
+		});
 
-		return signature;
+		return functionSymbol;
 	}
 
 	/**

@@ -1,5 +1,8 @@
-import Parser from 'tree-sitter';
+import PowerBuilder from '@pb-shrugged/tree-sitter-powerbuilder';
+import Parser, { Query, QueryMatch, SyntaxNode, Tree } from 'tree-sitter';
 import { Position } from 'vscode-languageserver-types';
+
+import { DocumentMainNodeTypes, EventMatch, FunctionMatch } from './tree-sitter-types';
 
 /**
  * Converte LSP Position para Tree-sitter Point
@@ -98,4 +101,73 @@ export function isPositionInNode(position: Position, node: Parser.SyntaxNode): b
 		return false;
 	}
 	return true;
+}
+
+/**
+ * Recursively iterate over all nodes in a tree.
+ *
+ * @param node The node to start iterating from
+ * @param callback The callback to call for each node. Return false to stop following children.
+ */
+export function forEach(node: SyntaxNode, callback: (n: SyntaxNode) => void | boolean) {
+	const followChildren = callback(node) !== false;
+	if (followChildren && node.children.length) {
+		node.children.forEach((n) => forEach(n, callback));
+	}
+}
+
+export function query(node: SyntaxNode, queryExpression: string): QueryMatch[] {
+	const query = new Query(PowerBuilder as Parser.Language, queryExpression);
+	const matches = query.matches(node);
+	return matches;
+}
+
+export function captureDocumentMainNodeTypes(tree: Tree): DocumentMainNodeTypes {
+	const functionMatch = new FunctionMatch({
+		index: 0,
+	});
+	const eventMatch = new EventMatch({
+		index: 1,
+	});
+
+	const matches = query(
+		tree.rootNode,
+		`
+		${functionMatch.expression}
+
+		${eventMatch.expression}
+		`,
+	);
+
+	functionMatch.queryMatch.push(
+		...matches.filter((match) => match.pattern === functionMatch.index),
+	);
+	eventMatch.queryMatch.push(
+		...matches.filter((match) => match.pattern === eventMatch.index),
+	);
+
+	return {
+		functionMatch: functionMatch,
+		eventMatch: eventMatch,
+	};
+}
+
+export function getFunctionImplementationName(
+	functionImplementationNode: SyntaxNode,
+): string | undefined {
+	const queryMatchs = query(
+		functionImplementationNode,
+		`
+		(function_implementation
+			init: (function_declaration
+    		name: (identifier) @name))
+		`,
+	);
+
+	if (queryMatchs.length === 1) {
+		const name = queryMatchs.at(0)?.captures.at(0)?.node.text;
+		return name;
+	}
+
+	return undefined;
 }

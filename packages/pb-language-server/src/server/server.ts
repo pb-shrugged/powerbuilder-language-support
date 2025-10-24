@@ -95,7 +95,7 @@ export default class PowerBuilderServer {
 			},
 			textDocumentSync: {
 				openClose: true,
-				change: LSP.TextDocumentSyncKind.Incremental,
+				change: LSP.TextDocumentSyncKind.Full, // TODO: Implement Incremental, change from DocumentManager.TextDocuments.onDidOpen to this.connection.onDidOpenTextDocument
 				save: {
 					includeText: false,
 				},
