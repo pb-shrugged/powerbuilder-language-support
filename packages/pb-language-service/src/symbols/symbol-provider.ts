@@ -1,8 +1,12 @@
+import { logger } from '@powerbuilder-language-support/logger';
 import Parser from 'tree-sitter';
 import { Position, Range, SymbolKind } from 'vscode-languageserver-types';
 
-import * as TreeSitterUtils from '../parser/tree-sitter-ast-utils';
-import * as TreeSitterTypes from '../parser/tree-sitter-types';
+import { NodeType } from '../parser/tree-sitter/node/tree-sitter-node';
+import * as TreeSitterUtils from '../parser/tree-sitter/tree-sitter-ast-utils';
+import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
+import * as TreeSitterTypes from '../parser/tree-sitter/tree-sitter-types';
+import { DocumentInfo } from '../service/document-manager';
 
 export interface Symbol {
 	name: string;
@@ -20,18 +24,14 @@ export class SymbolProvider {
 	/**
 	 * Coleta todos os símbolos top-level de um documento
 	 */
-	public getDocumentSymbols(tree: Parser.Tree): Symbol[] {
-		const symbols: Symbol[] = [];
+	public getDocumentSymbols(parser: TreeSitterParser, document: DocumentInfo): Symbol[] {
+		const sourceFile = parser.getSourceFile(document.tree);
 
-		const documentMainNodeTypes = TreeSitterUtils.captureDocumentMainNodeTypes(tree);
+		if (!sourceFile) {
+			return [];
+		}
 
-		const functionSymbols = this.extractFunctionSymbols(
-			documentMainNodeTypes.functionMatch,
-		);
-
-		symbols.push(...functionSymbols);
-
-		return symbols;
+		return sourceFile.getSymbols(parser);
 	}
 
 	/**
@@ -84,7 +84,7 @@ export class SymbolProvider {
 		const type = node.type;
 
 		// Function declaration
-		if (type === TreeSitterTypes.NodeType.Function) {
+		if (type === NodeType.Function) {
 			const nodeName = TreeSitterUtils.getFunctionImplementationName(node);
 			if (nodeName) {
 				return {
@@ -147,32 +147,6 @@ export class SymbolProvider {
 		}
 
 		return null;
-	}
-
-	private extractFunctionSymbols(functionMatch: TreeSitterTypes.FunctionMatch): Symbol[] {
-		const functionSymbol = new Array<Symbol>();
-
-		functionMatch.queryMatch.forEach((match) => {
-			const nameNode = match.captures.at(functionMatch.nameCapture.index)?.node;
-			const functionDeclarationNode = match.captures.at(
-				functionMatch.declarationCapture.index,
-			)?.node;
-
-			if (nameNode && functionDeclarationNode) {
-				const nodeRange = TreeSitterUtils.getNodeRange(nameNode);
-
-				functionSymbol.push({
-					name: nameNode.text,
-					kind: SymbolKind.Function,
-					range: nodeRange,
-					selectionRange: nodeRange,
-					detail: 'teste', // TODO this.getFunctionSignature(functionDeclarationNode),
-					node: nameNode,
-				});
-			}
-		});
-
-		return functionSymbol;
 	}
 
 	/**

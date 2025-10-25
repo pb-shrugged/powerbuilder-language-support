@@ -1,12 +1,9 @@
 import { QueryMatch } from 'tree-sitter';
 
-export const NodeType = {
-	Function: 'function_implementation',
-};
-
 export interface DocumentMainNodeTypes {
-	functionMatch: FunctionMatch;
-	eventMatch: EventMatch;
+	functionQuery: FunctionQuery;
+	eventQuery: EventQuery;
+	subroutineQuery: SubroutineQuery;
 }
 
 interface CaptureInfo {
@@ -14,7 +11,7 @@ interface CaptureInfo {
 	index: number;
 }
 
-export abstract class CustomMatch {
+export abstract class CustomQuery {
 	index: number;
 	expression: string;
 	queryMatch: QueryMatch[];
@@ -26,7 +23,7 @@ export abstract class CustomMatch {
 	}
 }
 
-export class FunctionMatch extends CustomMatch {
+export class FunctionQuery extends CustomQuery {
 	nameCapture: CaptureInfo = {
 		text: 'funtion_name',
 		index: 2,
@@ -50,7 +47,31 @@ export class FunctionMatch extends CustomMatch {
 	}
 }
 
-export class EventMatch extends CustomMatch {
+export class SubroutineQuery extends CustomQuery {
+	nameCapture: CaptureInfo = {
+		text: 'subroutine_name',
+		index: 2,
+	};
+	declarationCapture: CaptureInfo = {
+		text: 'subroutine_declaration',
+		index: 1,
+	};
+	implementationCapture: CaptureInfo = {
+		text: 'subroutine_implementation',
+		index: 0,
+	};
+
+	constructor({ index }: { index: number }) {
+		super({ index });
+		this.expression = `
+		(function_implementation
+				init: (subroutine_declaration
+						name: (identifier) @${this.nameCapture.text}) @${this.declarationCapture.text}) @${this.implementationCapture.text}
+	`;
+	}
+}
+
+export class EventQuery extends CustomQuery {
 	nameCapture: CaptureInfo = {
 		text: 'event_name',
 		index: 2,

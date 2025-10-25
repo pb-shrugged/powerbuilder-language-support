@@ -1,16 +1,18 @@
-import Parser from 'tree-sitter';
 import { DocumentSymbol } from 'vscode-languageserver-types';
 
+import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
+import { DocumentInfo } from '../service/document-manager';
 import { SymbolProvider } from '../symbols/symbol-provider';
 
 /**
  * Constrói a lista de símbolos do documento
  */
 export function buildDocumentSymbols(
-	tree: Parser.Tree,
+	parser: TreeSitterParser,
 	symbolProvider: SymbolProvider,
+	document: DocumentInfo,
 ): DocumentSymbol[] {
-	const symbols = symbolProvider.getDocumentSymbols(tree);
+	const symbols = symbolProvider.getDocumentSymbols(parser, document);
 
 	return symbols.map((symbol) => ({
 		name: symbol.name,

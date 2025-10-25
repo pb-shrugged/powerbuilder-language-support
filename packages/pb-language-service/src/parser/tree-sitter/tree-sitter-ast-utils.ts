@@ -2,7 +2,12 @@ import PowerBuilder from '@pb-shrugged/tree-sitter-powerbuilder';
 import Parser, { Query, QueryMatch, SyntaxNode, Tree } from 'tree-sitter';
 import { Position } from 'vscode-languageserver-types';
 
-import { DocumentMainNodeTypes, EventMatch, FunctionMatch } from './tree-sitter-types';
+import {
+	DocumentMainNodeTypes,
+	EventQuery,
+	FunctionQuery,
+	SubroutineQuery,
+} from './tree-sitter-types';
 
 /**
  * Converte LSP Position para Tree-sitter Point
@@ -123,32 +128,49 @@ export function query(node: SyntaxNode, queryExpression: string): QueryMatch[] {
 }
 
 export function captureDocumentMainNodeTypes(tree: Tree): DocumentMainNodeTypes {
-	const functionMatch = new FunctionMatch({
+	const functionQuery = new FunctionQuery({
 		index: 0,
 	});
-	const eventMatch = new EventMatch({
+	const eventQuery = new EventQuery({
 		index: 1,
+	});
+
+	const subroutineQuery = new SubroutineQuery({
+		index: 2,
 	});
 
 	const matches = query(
 		tree.rootNode,
 		`
-		${functionMatch.expression}
+		${functionQuery.expression}
 
-		${eventMatch.expression}
+		${eventQuery.expression}
+
+		${subroutineQuery.expression}
+
 		`,
 	);
 
-	functionMatch.queryMatch.push(
-		...matches.filter((match) => match.pattern === functionMatch.index),
-	);
-	eventMatch.queryMatch.push(
-		...matches.filter((match) => match.pattern === eventMatch.index),
-	);
+	matches.forEach((match) => {
+		switch (match.pattern) {
+			case functionQuery.index:
+				functionQuery.queryMatch.push(match);
+				break;
+
+			case eventQuery.index:
+				eventQuery.queryMatch.push(match);
+				break;
+
+			case subroutineQuery.index:
+				subroutineQuery.queryMatch.push(match);
+				break;
+		}
+	});
 
 	return {
-		functionMatch: functionMatch,
-		eventMatch: eventMatch,
+		functionQuery,
+		eventQuery,
+		subroutineQuery,
 	};
 }
 

@@ -1,11 +1,12 @@
 import { validateDocument } from '../features/diagnostics';
-import { TreeSitterManager } from '../parser/tree-sitter-manager';
+import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
+import { DocumentManager } from '../service/document-manager';
 
 describe('Diagnostics', () => {
-	let manager: TreeSitterManager;
+	let manager: DocumentManager;
 
 	beforeEach(() => {
-		manager = new TreeSitterManager();
+		manager = new DocumentManager({ parser: new TreeSitterParser() });
 	});
 
 	test('should return no diagnostics for valid code', () => {

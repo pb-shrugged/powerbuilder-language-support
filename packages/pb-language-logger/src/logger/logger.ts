@@ -7,6 +7,7 @@ export default class Logger {
 		this.logger = winston.createLogger({
 			transports: [new winston.transports.Console()],
 			format: winston.format.printf((info) => `${info.level}: ${info.message}`),
+			level: process.env.SERVER_LOG_LEVEL || 'debug',
 		});
 	}
 

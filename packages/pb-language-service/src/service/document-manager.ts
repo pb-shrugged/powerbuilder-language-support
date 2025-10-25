@@ -1,6 +1,7 @@
-import PowerBuilder from '@pb-shrugged/tree-sitter-powerbuilder';
 import Parser from 'tree-sitter';
 import { Range } from 'vscode-languageserver-types';
+
+import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
 
 /**
  * Representa uma mudança incremental em um documento de texto
@@ -32,13 +33,12 @@ export interface DocumentInfo {
 /**
  * Gerencia o parser Tree-sitter e cache de ASTs
  */
-export class TreeSitterManager {
-	private parser: Parser;
+export class DocumentManager {
+	private parser: TreeSitterParser;
 	private documents: Map<string, DocumentInfo>;
 
-	constructor() {
-		this.parser = new Parser();
-		this.parser.setLanguage(PowerBuilder as unknown as Parser.Language); // TODO: Verify this problem with the types, maybe is the tree-sitter-cli@0.25.0
+	constructor({ parser }: { parser: TreeSitterParser }) {
+		this.parser = parser;
 		this.documents = new Map();
 	}
 

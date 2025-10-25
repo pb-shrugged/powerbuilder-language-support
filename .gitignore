@@ -21,3 +21,6 @@ package-lock.json
 
 # vscode dot files
 .vscode-test
+
+# env
+.env

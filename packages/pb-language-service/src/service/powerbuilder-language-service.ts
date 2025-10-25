@@ -10,22 +10,22 @@ import { findDefinition } from '../features/definition';
 import { validateDocument } from '../features/diagnostics';
 import { buildDocumentSymbols } from '../features/document-symbol';
 import { provideHover } from '../features/hover';
-import {
-	TextDocumentContentChangeEvent,
-	TreeSitterManager,
-} from '../parser/tree-sitter-manager';
+import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
 import { SymbolProvider } from '../symbols/symbol-provider';
+import { DocumentManager, TextDocumentContentChangeEvent } from './document-manager';
 
 /**
  * PowerBuilder Language Service
  * API pública para funcionalidades LSP
  */
 export class PowerBuilderLanguageService {
-	private treeSitterManager: TreeSitterManager;
+	private documentManager: DocumentManager;
 	private symbolProvider: SymbolProvider;
+	private parser: TreeSitterParser;
 
 	constructor() {
-		this.treeSitterManager = new TreeSitterManager();
+		this.parser = new TreeSitterParser();
+		this.documentManager = new DocumentManager({ parser: this.parser });
 		this.symbolProvider = new SymbolProvider();
 	}
 
@@ -33,7 +33,7 @@ export class PowerBuilderLanguageService {
 	 * Faz parsing de um documento e armazena no cache
 	 */
 	parseAndCache(uri: string, text: string, version: number): void {
-		this.treeSitterManager.parseAndCache(uri, text, version);
+		this.documentManager.parseAndCache(uri, text, version);
 	}
 
 	/**
@@ -44,7 +44,7 @@ export class PowerBuilderLanguageService {
 		changes: TextDocumentContentChangeEvent[],
 		version: number,
 	): boolean {
-		const tree = this.treeSitterManager.updateWithChanges(uri, changes, version);
+		const tree = this.documentManager.updateWithChanges(uri, changes, version);
 		return tree !== undefined;
 	}
 
@@ -52,14 +52,14 @@ export class PowerBuilderLanguageService {
 	 * Remove um documento do cache
 	 */
 	removeDocument(uri: string): void {
-		this.treeSitterManager.removeDocument(uri);
+		this.documentManager.removeDocument(uri);
 	}
 
 	/**
 	 * Valida um documento e retorna diagnósticos
 	 */
 	validate(uri: string): Diagnostic[] {
-		const tree = this.treeSitterManager.getTree(uri);
+		const tree = this.documentManager.getTree(uri);
 		if (!tree) {
 			return [];
 		}
@@ -70,7 +70,7 @@ export class PowerBuilderLanguageService {
 	 * Provê informações de hover
 	 */
 	provideHover(uri: string, position: Position): Hover | null {
-		const tree = this.treeSitterManager.getTree(uri);
+		const tree = this.documentManager.getTree(uri);
 		if (!tree) {
 			return null;
 		}
@@ -81,7 +81,7 @@ export class PowerBuilderLanguageService {
 	 * Encontra a definição de um símbolo
 	 */
 	findDefinition(uri: string, position: Position): Location | null {
-		const tree = this.treeSitterManager.getTree(uri);
+		const tree = this.documentManager.getTree(uri);
 		if (!tree) {
 			return null;
 		}
@@ -92,17 +92,17 @@ export class PowerBuilderLanguageService {
 	 * Constrói símbolos do documento
 	 */
 	buildDocumentSymbols(uri: string): DocumentSymbol[] {
-		const tree = this.treeSitterManager.getTree(uri);
-		if (!tree) {
+		const document = this.documentManager.getDocument(uri);
+		if (!document) {
 			return [];
 		}
-		return buildDocumentSymbols(tree, this.symbolProvider);
+		return buildDocumentSymbols(this.parser, this.symbolProvider, document);
 	}
 
 	/**
 	 * Limpa todos os documentos do cache
 	 */
 	clear(): void {
-		this.treeSitterManager.clear();
+		this.documentManager.clear();
 	}
 }

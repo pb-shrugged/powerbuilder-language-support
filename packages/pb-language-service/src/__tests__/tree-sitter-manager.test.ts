@@ -1,10 +1,11 @@
-import { TreeSitterManager } from '../parser/tree-sitter-manager';
+import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
+import { DocumentManager } from '../service/document-manager';
 
 describe('TreeSitterManager', () => {
-	let manager: TreeSitterManager;
+	let manager: DocumentManager;
 
 	beforeEach(() => {
-		manager = new TreeSitterManager();
+		manager = new DocumentManager({ parser: new TreeSitterParser() });
 	});
 
 	test('should parse and cache a simple PowerBuilder script', () => {

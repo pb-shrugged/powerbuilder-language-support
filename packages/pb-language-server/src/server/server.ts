@@ -102,7 +102,7 @@ export default class PowerBuilderServer {
 			},
 			hoverProvider: true,
 			definitionProvider: true,
-			referencesProvider: true,
+			referencesProvider: false,
 			documentSymbolProvider: true,
 			workspaceSymbolProvider: true,
 		};
@@ -129,6 +129,7 @@ export default class PowerBuilderServer {
 		this.connection.onHover(this.onHover.bind(this));
 		this.connection.onDefinition(this.onDefinition.bind(this));
 		this.connection.onDocumentSymbol(this.onDocumentSymbol.bind(this));
+		this.connection.onWorkspaceSymbol(this.onWorkspaceSymbol.bind(this));
 
 		this.documentManager.register(this.connection);
 	}
@@ -221,6 +222,7 @@ export default class PowerBuilderServer {
 	}
 
 	private onDocumentSymbol(params: LSP.DocumentSymbolParams) {
+		logger.getLogger().debug('onDocumentSymbol');
 		try {
 			const symbols = this.powerbuilderLanguageService.buildDocumentSymbols(
 				params.textDocument.uri,
@@ -230,6 +232,13 @@ export default class PowerBuilderServer {
 			logger.getLogger().error(`Error building document symbols: ${error}`);
 			return [];
 		}
+	}
+
+	private onWorkspaceSymbol(params: LSP.WorkspaceSymbolParams) {
+		logger.getLogger().debug('onWorkspaceSymbol');
+		logger.getLogger().debug(JSON.stringify(params));
+
+		return null;
 	}
 
 	public isInitialized() {
