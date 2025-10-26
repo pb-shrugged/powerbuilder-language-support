@@ -13,7 +13,7 @@
 		"lint:fix": "eslint . --fix"
 	},
 	"dependencies": {
-		"@pb-shrugged/tree-sitter-powerbuilder": "^2.0.4",
+		"@pb-shrugged/tree-sitter-powerbuilder": "^2.0.5",
 		"@powerbuilder-language-support/logger": "^0.1.0",
 		"tree-sitter": "^0.25.0",
 		"vscode-languageserver-types": "^3.17.5"
