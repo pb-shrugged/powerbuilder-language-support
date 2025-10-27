@@ -8,13 +8,16 @@ import {
 	PBEventNode,
 	PBExternalFunctionNode,
 	PBFunctionNode,
+	PBGlobalFunctionNode,
 	PBGlobalStructureNode,
+	PBGlobalSubroutineNode,
 	PBGlobalVariableNode,
 	PBInnerClassObjectNode,
 	PBInnerStructureNode,
 	PBInstanceVariableNode,
 	PBLocalVariableNode,
 	PBSharedVariableNode,
+	PBStructureFieldNode,
 	PBSubroutineNode,
 	PBSymbolNode,
 } from './pb-node-symbol';
@@ -54,6 +57,7 @@ export class PBClassFileNode extends PBSourceFileNode {
 				new PBGlobalVariableNode(),
 				new PBClassNode(),
 				new PBInnerStructureNode(),
+				new PBStructureFieldNode(),
 				new PBLocalVariableNode(),
 			],
 		);
@@ -63,10 +67,21 @@ export class PBClassFileNode extends PBSourceFileNode {
 export class PBStructureFileNode extends PBSourceFileNode {
 	constructor({ tree }: { tree: Parser.Tree }) {
 		super({ tree });
-		this.symbolNodes.push(...[new PBGlobalStructureNode()]);
+		this.symbolNodes.push(...[new PBGlobalStructureNode(), new PBStructureFieldNode()]);
 	}
 }
 
-export class PBFunctionFileNode extends PBSourceFileNode {}
+export class PBFunctionFileNode extends PBSourceFileNode {
+	constructor({ tree }: { tree: Parser.Tree }) {
+		super({ tree });
+		this.symbolNodes.push(
+			...[
+				new PBGlobalFunctionNode(),
+				new PBGlobalSubroutineNode(),
+				new PBLocalVariableNode(),
+			],
+		);
+	}
+}
 
 export class PBDatawindowFileNode extends PBSourceFileNode {}

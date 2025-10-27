@@ -378,3 +378,88 @@ export class PBGlobalStructureNode extends PBSymbolNode {
 		});
 	}
 }
+
+export class PBGlobalFunctionNode extends PBSymbolNode {
+	query: TreeSitterQuery;
+	symbolKind: SymbolKind = SymbolKind.Function;
+	identifierCapture: PBQueryCapture;
+	declarationCapture: PBQueryCapture = new PBQueryCapture({
+		name: 'global_function_declaration',
+		index: 1,
+	});
+	implementationCapture: PBQueryCapture = new PBQueryCapture({
+		name: 'global_function_implementation',
+		index: 0,
+	});
+
+	constructor() {
+		super();
+
+		this.identifierCapture = new PBQueryCapture({
+			name: 'global_function_name',
+			index: 2,
+		});
+		this.query = new TreeSitterQuery({
+			queryExpression: `
+			(global_function_implementaion_section
+				(global_function_implementation
+						init: (global_function_declaration
+								(identifier) @${this.identifierCapture.name}) @${this.declarationCapture.name}) @${this.implementationCapture.name})
+		`,
+		});
+	}
+}
+
+export class PBGlobalSubroutineNode extends PBSymbolNode {
+	query: TreeSitterQuery;
+	symbolKind: SymbolKind = SymbolKind.Function;
+	identifierCapture: PBQueryCapture;
+	declarationCapture: PBQueryCapture = new PBQueryCapture({
+		name: 'global_subroutine_declaration',
+		index: 1,
+	});
+	implementationCapture: PBQueryCapture = new PBQueryCapture({
+		name: 'global_subroutine_implementation',
+		index: 0,
+	});
+
+	constructor() {
+		super();
+
+		this.identifierCapture = new PBQueryCapture({
+			name: 'global_subroutine_name',
+			index: 2,
+		});
+		this.query = new TreeSitterQuery({
+			queryExpression: `
+			(global_function_implementaion_section
+				(global_function_implementation
+						init: (global_subroutine_declaration
+								(identifier) @${this.identifierCapture.name}) @${this.declarationCapture.name}) @${this.implementationCapture.name})
+		`,
+		});
+	}
+}
+
+export class PBStructureFieldNode extends PBSymbolNode {
+	query: TreeSitterQuery;
+	symbolKind: SymbolKind = SymbolKind.Field;
+	identifierCapture: PBQueryCapture;
+
+	constructor() {
+		super();
+
+		this.identifierCapture = new PBQueryCapture({
+			name: 'structure_field',
+			index: 0,
+		});
+		this.query = new TreeSitterQuery({
+			queryExpression: `
+				(structure_definition
+					body: (structure_definition_body
+							(structure_field
+									(identifier) @${this.identifierCapture.name})))
+		`,
+		});
+	}
+}
