@@ -152,7 +152,7 @@ export class PBInstanceVariableNode extends PBSymbolNode {
 
 		this.identifierCapture = new PBQueryCapture({
 			name: 'instance_variable_name',
-			index: 1,
+			index: 0,
 		});
 		this.query = new TreeSitterQuery({
 			queryExpression: `
@@ -189,7 +189,7 @@ export class PBSharedVariableNode extends PBSymbolNode {
 
 		this.identifierCapture = new PBQueryCapture({
 			name: 'shared_variable_name',
-			index: 1,
+			index: 0,
 		});
 		this.query = new TreeSitterQuery({
 			queryExpression: `
@@ -214,7 +214,7 @@ export class PBInnerClassObjectNode extends PBSymbolNode {
 
 		this.identifierCapture = new PBQueryCapture({
 			name: 'inner_class_object_name',
-			index: 1,
+			index: 0,
 		});
 		this.query = new TreeSitterQuery({
 			queryExpression: `
@@ -236,8 +236,8 @@ export class PBClassPropertyNode extends PBSymbolNode {
 		super();
 
 		this.identifierCapture = new PBQueryCapture({
-			name: 'inner_class_object_name',
-			index: 1,
+			name: 'class_property_name',
+			index: 0,
 		});
 		this.query = new TreeSitterQuery({
 			queryExpression: `
@@ -264,7 +264,7 @@ export class PBGlobalVariableNode extends PBSymbolNode {
 
 		this.identifierCapture = new PBQueryCapture({
 			name: 'global_variable_name',
-			index: 1,
+			index: 0,
 		});
 		this.query = new TreeSitterQuery({
 			queryExpression: `
@@ -283,7 +283,7 @@ export class PBGlobalVariableNode extends PBSymbolNode {
 	}
 }
 
-export class PBClassDeclarationNode extends PBSymbolNode {
+export class PBClassNode extends PBSymbolNode {
 	query: TreeSitterQuery;
 	symbolKind: SymbolKind = SymbolKind.Class;
 	identifierCapture: PBQueryCapture;
@@ -292,8 +292,8 @@ export class PBClassDeclarationNode extends PBSymbolNode {
 		super();
 
 		this.identifierCapture = new PBQueryCapture({
-			name: 'global_variable_name',
-			index: 1,
+			name: 'class_name',
+			index: 0,
 		});
 		this.query = new TreeSitterQuery({
 			queryExpression: `
@@ -307,7 +307,7 @@ export class PBClassDeclarationNode extends PBSymbolNode {
 	}
 }
 
-export class PBInnerStructureDeclarationNode extends PBSymbolNode {
+export class PBInnerStructureNode extends PBSymbolNode {
 	query: TreeSitterQuery;
 	symbolKind: SymbolKind = SymbolKind.Struct;
 	identifierCapture: PBQueryCapture;
@@ -316,8 +316,8 @@ export class PBInnerStructureDeclarationNode extends PBSymbolNode {
 		super();
 
 		this.identifierCapture = new PBQueryCapture({
-			name: 'global_variable_name',
-			index: 1,
+			name: 'inner_class_structure_name',
+			index: 0,
 		});
 		this.query = new TreeSitterQuery({
 			queryExpression: `
@@ -326,6 +326,54 @@ export class PBInnerStructureDeclarationNode extends PBSymbolNode {
 						(structure_definition
 								init: (structure_definition_init
 										(identifier) @${this.identifierCapture.name}))))
+		`,
+		});
+	}
+}
+
+export class PBLocalVariableNode extends PBSymbolNode {
+	query: TreeSitterQuery;
+	symbolKind: SymbolKind = SymbolKind.Variable;
+	identifierCapture: PBQueryCapture;
+
+	constructor() {
+		super();
+
+		this.identifierCapture = new PBQueryCapture({
+			name: 'local_variable_name',
+			index: 0,
+		});
+		this.query = new TreeSitterQuery({
+			queryExpression: `
+			(scriptable_block
+				(statement
+						(local_variable_declaration
+								(variable_declaration_list
+										(variable_declaration_identifier
+												var_name: (identifier) @${this.identifierCapture.name})))))
+		`,
+		});
+	}
+}
+
+export class PBGlobalStructureNode extends PBSymbolNode {
+	query: TreeSitterQuery;
+	symbolKind: SymbolKind = SymbolKind.Struct;
+	identifierCapture: PBQueryCapture;
+
+	constructor() {
+		super();
+
+		this.identifierCapture = new PBQueryCapture({
+			name: 'inner_class_structure_name',
+			index: 0,
+		});
+		this.query = new TreeSitterQuery({
+			queryExpression: `
+			(structure_content
+				(structure_definition
+						init: (structure_definition_init
+							(identifier) @${this.identifierCapture.name})))
 		`,
 		});
 	}

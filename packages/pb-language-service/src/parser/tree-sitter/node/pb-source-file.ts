@@ -3,15 +3,17 @@ import Parser from 'tree-sitter';
 import { Symbol } from '../../../symbols/symbol-provider';
 import { TreeSitterParser } from '../tree-sitter-parser';
 import {
-	PBClassDeclarationNode,
+	PBClassNode,
 	PBClassPropertyNode,
 	PBEventNode,
 	PBExternalFunctionNode,
 	PBFunctionNode,
+	PBGlobalStructureNode,
 	PBGlobalVariableNode,
 	PBInnerClassObjectNode,
-	PBInnerStructureDeclarationNode,
+	PBInnerStructureNode,
 	PBInstanceVariableNode,
+	PBLocalVariableNode,
 	PBSharedVariableNode,
 	PBSubroutineNode,
 	PBSymbolNode,
@@ -50,14 +52,20 @@ export class PBClassFileNode extends PBSourceFileNode {
 				new PBInnerClassObjectNode(),
 				new PBClassPropertyNode(),
 				new PBGlobalVariableNode(),
-				new PBClassDeclarationNode(),
-				new PBInnerStructureDeclarationNode(),
+				new PBClassNode(),
+				new PBInnerStructureNode(),
+				new PBLocalVariableNode(),
 			],
 		);
 	}
 }
 
-export class PBStructureFileNode extends PBSourceFileNode {}
+export class PBStructureFileNode extends PBSourceFileNode {
+	constructor({ tree }: { tree: Parser.Tree }) {
+		super({ tree });
+		this.symbolNodes.push(...[new PBGlobalStructureNode()]);
+	}
+}
 
 export class PBFunctionFileNode extends PBSourceFileNode {}
 
