@@ -5,7 +5,6 @@ import { Position, Range, SymbolKind } from 'vscode-languageserver-types';
 import { NodeType } from '../parser/tree-sitter/node/tree-sitter-node';
 import * as TreeSitterUtils from '../parser/tree-sitter/tree-sitter-ast-utils';
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
-import * as TreeSitterTypes from '../parser/tree-sitter/tree-sitter-types';
 import { DocumentInfo } from '../service/document-manager';
 
 export interface Symbol {

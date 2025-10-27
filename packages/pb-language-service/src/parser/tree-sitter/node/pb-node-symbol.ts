@@ -463,3 +463,39 @@ export class PBStructureFieldNode extends PBSymbolNode {
 		});
 	}
 }
+
+export class PBFunctionParameterVariableNode extends PBSymbolNode {
+	query: TreeSitterQuery;
+	symbolKind: SymbolKind = SymbolKind.Variable;
+	identifierCapture: PBQueryCapture;
+
+	constructor() {
+		super();
+
+		this.identifierCapture = new PBQueryCapture({
+			name: 'parameter_variable',
+			index: 0,
+		});
+		this.query = new TreeSitterQuery({
+			queryExpression: `
+				(event_implementation
+					init: (event_implementation_init
+							(parameter_list
+									(parameter
+											(identifier) @${this.identifierCapture.name}))))
+
+				(function_implementation
+					init: (function_declaration
+							(parameter_list
+									(parameter
+											(identifier) @${this.identifierCapture.name}))))
+
+				(function_implementation
+					init: (subroutine_declaration
+							(parameter_list
+									(parameter
+											(identifier) @${this.identifierCapture.name}))))
+		`,
+		});
+	}
+}
