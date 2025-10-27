@@ -3,8 +3,16 @@ import Parser from 'tree-sitter';
 import { Symbol } from '../../../symbols/symbol-provider';
 import { TreeSitterParser } from '../tree-sitter-parser';
 import {
+	PBClassDeclarationNode,
+	PBClassPropertyNode,
 	PBEventNode,
+	PBExternalFunctionNode,
 	PBFunctionNode,
+	PBGlobalVariableNode,
+	PBInnerClassObjectNode,
+	PBInnerStructureDeclarationNode,
+	PBInstanceVariableNode,
+	PBSharedVariableNode,
 	PBSubroutineNode,
 	PBSymbolNode,
 } from './pb-node-symbol';
@@ -32,7 +40,19 @@ export class PBClassFileNode extends PBSourceFileNode {
 	constructor({ tree }: { tree: Parser.Tree }) {
 		super({ tree });
 		this.symbolNodes.push(
-			...[new PBFunctionNode(), new PBSubroutineNode(), new PBEventNode()],
+			...[
+				new PBFunctionNode(),
+				new PBSubroutineNode(),
+				new PBEventNode(),
+				new PBExternalFunctionNode(),
+				new PBInstanceVariableNode(),
+				new PBSharedVariableNode(),
+				new PBInnerClassObjectNode(),
+				new PBClassPropertyNode(),
+				new PBGlobalVariableNode(),
+				new PBClassDeclarationNode(),
+				new PBInnerStructureDeclarationNode(),
+			],
 		);
 	}
 }

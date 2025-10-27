@@ -36,7 +36,7 @@ export class TreeSitterParser {
 		}
 
 		switch (fileNode.type) {
-			case NodeType.ApplicationFile || NodeType.WindowFile || NodeType.UserObjectFile:
+			case NodeType.ClassFile:
 				return new PBClassFileNode({ tree });
 
 			case NodeType.FunctionFile:

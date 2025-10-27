@@ -1,3 +1,4 @@
+import { logger } from '@powerbuilder-language-support/logger';
 import Parser from 'tree-sitter';
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver-types';
 
@@ -12,18 +13,20 @@ export function validateDocument(tree: Parser.Tree): Diagnostic[] {
 	// Coleta todos os nós de erro
 	const errors = collectErrors(tree.rootNode);
 
-	for (const errorNode of errors) {
-		const range = getNodeRange(errorNode);
+	if (errors) {
+		for (const errorNode of errors) {
+			const range = getNodeRange(errorNode);
 
-		diagnostics.push({
-			severity: DiagnosticSeverity.Error,
-			range: {
-				start: range.start,
-				end: range.end,
-			},
-			message: 'Syntax error',
-			source: 'powerbuilderLanguageServer',
-		});
+			diagnostics.push({
+				severity: DiagnosticSeverity.Error,
+				range: {
+					start: range.start,
+					end: range.end,
+				},
+				message: 'Syntax error',
+				source: 'powerbuilderLanguageServer',
+			});
+		}
 	}
 
 	return diagnostics;

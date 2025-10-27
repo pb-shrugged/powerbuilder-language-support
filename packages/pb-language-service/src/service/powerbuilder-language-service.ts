@@ -81,11 +81,11 @@ export class PowerBuilderLanguageService {
 	 * Encontra a definição de um símbolo
 	 */
 	findDefinition(uri: string, position: Position): Location | null {
-		const tree = this.documentManager.getTree(uri);
-		if (!tree) {
+		const document = this.documentManager.getDocument(uri);
+		if (!document) {
 			return null;
 		}
-		return findDefinition(uri, tree, position, this.symbolProvider);
+		return findDefinition(this.parser, this.symbolProvider, document, position);
 	}
 
 	/**

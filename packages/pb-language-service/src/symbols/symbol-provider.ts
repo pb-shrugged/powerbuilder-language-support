@@ -37,11 +37,15 @@ export class SymbolProvider {
 	/**
 	 * Encontra a definição de um símbolo na posição especificada
 	 */
-	public findDefinitionAtPosition(tree: Parser.Tree, position: Position): Symbol | null {
-		const symbols = this.getAllSymbols(tree);
+	public findDefinitionAtPosition(
+		parser: TreeSitterParser,
+		document: DocumentInfo,
+		position: Position,
+	): Symbol | null {
+		const symbols = this.getDocumentSymbols(parser, document);
 
 		// Primeiro, encontra o identificador na posição
-		const node = this.findNodeAtPosition(tree.rootNode, position);
+		const node = this.findNodeAtPosition(document.tree.rootNode, position);
 		if (!node) {
 			return null;
 		}
