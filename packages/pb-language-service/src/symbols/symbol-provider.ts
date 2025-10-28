@@ -1,6 +1,12 @@
 import { logger } from '@powerbuilder-language-support/logger';
 import Parser from 'tree-sitter';
-import { Position, Range, SymbolKind, SymbolTag } from 'vscode-languageserver-types';
+import {
+	DocumentSymbol,
+	Position,
+	Range,
+	SymbolKind,
+	SymbolTag,
+} from 'vscode-languageserver-types';
 
 import { NodeType } from '../parser/tree-sitter/node/tree-sitter-node';
 import * as TreeSitterUtils from '../parser/tree-sitter/tree-sitter-ast-utils';
@@ -46,8 +52,8 @@ export class SymbolProvider {
 		parser: TreeSitterParser,
 		document: DocumentInfo,
 		position: Position,
-	): Symbol | null {
-		const { documentSymbols: symbols } = this.getDocumentSymbols(parser, document);
+	): DocumentSymbol | null {
+		const { documentSymbols } = document;
 
 		// Primeiro, encontra o identificador na posição
 		const node = this.findNodeAtPosition(document.tree.rootNode, position);
@@ -55,10 +61,19 @@ export class SymbolProvider {
 			return null;
 		}
 
-		const identifierText = TreeSitterUtils.getNodeText(node);
+		const identifierText = TreeSitterUtils.getNodeText(node).toLocaleLowerCase();
+
+		logger.getLogger().debug(`identifierText: ${identifierText}`);
 
 		// Procura um símbolo com o mesmo nome
-		const matchingSymbol = symbols.find((s) => s.name === identifierText);
+		const matchingSymbol = documentSymbols.find((symbol) => {
+			logger.getLogger().debug(`symbol.name: ${symbol.name}`);
+			return symbol.name === identifierText;
+		});
+		logger
+			.getLogger()
+			.debug(`matchingSymbol: ${matchingSymbol?.name} ${matchingSymbol?.selectionRange}`);
+
 		return matchingSymbol || null;
 	}
 

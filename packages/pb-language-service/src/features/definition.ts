@@ -1,3 +1,4 @@
+import { logger } from '@powerbuilder-language-support/logger';
 import Parser from 'tree-sitter';
 import { Location, Position } from 'vscode-languageserver-types';
 
@@ -19,6 +20,8 @@ export function findDefinition(
 	if (!symbol) {
 		return null;
 	}
+
+	logger.getLogger().debug(`selectionRange: ${symbol.selectionRange}`);
 
 	return {
 		uri: document.uri,
