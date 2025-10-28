@@ -515,6 +515,13 @@ export class PBFunctionParameterVariableNode extends PBSymbolNode {
 							(parameter_list
 									(parameter
 											(identifier) @${this.identifierCapture.name}) @${this.scopeCapture.name})))
+
+				(external_function_declaration
+					(function_prototype
+						(function_declaration
+							(parameter_list
+								(parameter
+									(identifier) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))
 		`,
 		});
 	}
