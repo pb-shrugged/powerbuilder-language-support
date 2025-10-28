@@ -8,6 +8,7 @@ import {
 	PBEventNode,
 	PBExternalFunctionNode,
 	PBFunctionNode,
+	PBFunctionParameterVariableNode,
 	PBGlobalFunctionNode,
 	PBGlobalStructureNode,
 	PBGlobalSubroutineNode,
@@ -59,6 +60,7 @@ export class PBClassFileNode extends PBSourceFileNode {
 				new PBInnerStructureNode(),
 				new PBStructureFieldNode(),
 				new PBLocalVariableNode(),
+				new PBFunctionParameterVariableNode(),
 			],
 		);
 	}
@@ -79,6 +81,7 @@ export class PBFunctionFileNode extends PBSourceFileNode {
 				new PBGlobalFunctionNode(),
 				new PBGlobalSubroutineNode(),
 				new PBLocalVariableNode(),
+				new PBFunctionParameterVariableNode(),
 			],
 		);
 	}

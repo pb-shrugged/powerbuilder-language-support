@@ -1,5 +1,5 @@
 import Parser from 'tree-sitter';
-import { Range } from 'vscode-languageserver-types';
+import { DocumentSymbol, Range } from 'vscode-languageserver-types';
 
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
 
@@ -28,6 +28,7 @@ export interface DocumentInfo {
 	version: number;
 	tree: Parser.Tree;
 	text: string;
+	documentSymbols: DocumentSymbol[];
 }
 
 /**

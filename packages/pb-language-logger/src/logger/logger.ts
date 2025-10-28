@@ -7,7 +7,7 @@ export default class Logger {
 		this.logger = winston.createLogger({
 			transports: [new winston.transports.Console()],
 			format: winston.format.printf((info) => `${info.level}: ${info.message}`),
-			level: process.env.SERVER_LOG_LEVEL || 'debug',
+			level: 'debug',
 		});
 	}
 
@@ -16,4 +16,18 @@ export default class Logger {
 	}
 
 	public addTransport() {}
+
+	private setLoggerLevel(level: string) {
+		this.logger.level = level;
+	}
+
+	public updateConfiguration(config: LoggerConfig): boolean {
+		this.setLoggerLevel(config.logLevel);
+
+		return true;
+	}
+}
+
+export interface LoggerConfig {
+	logLevel: string;
 }

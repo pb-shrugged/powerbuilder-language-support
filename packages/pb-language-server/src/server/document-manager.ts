@@ -57,7 +57,7 @@ export default class DocumentManager {
 		this.config = { ...config };
 	}
 
-	public GetConfigFromServer(config: ServerConfig.Config): DocumentManagerConfig {
+	public getConfigFromServer(config: ServerConfig.Config): DocumentManagerConfig {
 		return {
 			diagnosticBounceMs: config.diagnosticBounceMs,
 		};

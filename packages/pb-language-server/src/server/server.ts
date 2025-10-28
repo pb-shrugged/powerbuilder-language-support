@@ -4,7 +4,7 @@ import {
 	PowerBuilderLanguageService,
 	TextDocumentContentChangeEvent,
 } from '@powerbuilder-language-support/language-service';
-import { logger } from '@powerbuilder-language-support/logger';
+import { logger, LoggerConfig } from '@powerbuilder-language-support/logger';
 import * as LSP from 'vscode-languageserver/node';
 
 import DocumentManager from './document-manager';
@@ -54,9 +54,11 @@ export default class PowerBuilderServer {
 		connection: LSP.Connection;
 		initializeParams: LSP.InitializeParams;
 	}): PowerBuilderServer {
-		const powerbuilderLanguageService = new PowerBuilderLanguageService();
-
 		const { capabilities, workspaceFolders } = initializeParams;
+
+		const powerbuilderLanguageService = new PowerBuilderLanguageService({
+			workspaceFolders,
+		});
 
 		const server = new PowerBuilderServer({
 			powerbuilderLanguageService,
@@ -73,8 +75,10 @@ export default class PowerBuilderServer {
 		if (!isDeepStrictEqual(this.config, newConfig)) {
 			this.config = { ...newConfig };
 			this.documentManager.updateConfiguration(
-				this.documentManager.GetConfigFromServer(this.config),
+				this.documentManager.getConfigFromServer(this.config),
 			);
+
+			logger.updateConfiguration(this.getLoggerConfigFromServerConfig(this.config));
 
 			return true;
 		}
@@ -108,6 +112,12 @@ export default class PowerBuilderServer {
 		};
 	}
 
+	private getLoggerConfigFromServerConfig(config: config.Config): LoggerConfig {
+		return {
+			logLevel: config.logLevel,
+		};
+	}
+
 	/**
 	 * Register handlers for the events from the Language Server Protocol that we
 	 * care about.
@@ -138,6 +148,8 @@ export default class PowerBuilderServer {
 		this.initialized = true;
 
 		logger.getLogger().info('PowerBuilder Language Server initialized!');
+
+		return { backgroundAnalysisCompleted: this.startBackgroundAnalysis() };
 	}
 
 	private onShutdown() {
@@ -239,6 +251,18 @@ export default class PowerBuilderServer {
 		logger.getLogger().debug(JSON.stringify(params));
 
 		return null;
+	}
+
+	private async startBackgroundAnalysis(): Promise<{ filesParsed: number }> {
+		try {
+			return this.powerbuilderLanguageService.initializeBackgroundAnalysis({
+				filesGlobPattern: this.config.globPattern,
+				backgroundAnalysisMaxFiles: this.config.backgroundAnalysisMaxFiles,
+			});
+		} catch (error) {
+			logger.getLogger().error(`Error on startBackgroundAnalysis: ${error}`);
+			return Promise.resolve({ filesParsed: 0 });
+		}
 	}
 
 	public isInitialized() {
