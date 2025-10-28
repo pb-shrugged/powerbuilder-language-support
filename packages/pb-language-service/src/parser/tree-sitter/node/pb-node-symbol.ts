@@ -137,6 +137,8 @@ export class PBStructureFieldNode extends PBSymbolNode {
 	constructor() {
 		super();
 
+		this._isTopLevel = true;
+
 		this.identifierCapture = new PBQueryCapture({
 			name: 'structure_field',
 			index: 0,
