@@ -12,7 +12,10 @@ export function buildDocumentSymbols(
 	symbolProvider: SymbolProvider,
 	document: DocumentInfo,
 ): DocumentSymbol[] {
-	const symbols = symbolProvider.getDocumentSymbols(parser, document);
+	const { documentSymbols: symbols } = symbolProvider.getDocumentSymbols(
+		parser,
+		document,
+	);
 
 	return symbols.map((symbol) => ({
 		name: symbol.name,

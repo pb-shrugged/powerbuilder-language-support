@@ -31,14 +31,23 @@ export abstract class PBSourceFileNode {
 		this.tree = tree;
 	}
 
-	public getSymbols(parser: TreeSitterParser): Symbol[] {
-		const symbols = new Array<Symbol>();
+	public getSymbols(parser: TreeSitterParser): {
+		documentSymbols: Symbol[];
+		topLevelSymbols: Symbol[];
+	} {
+		const fileDocumentSymbols = new Array<Symbol>();
+		const fileTopLevelSymbols = new Array<Symbol>();
 
-		this.symbolNodes.forEach((symbolNode) =>
-			symbols.push(...symbolNode.getSymbols(this.tree, parser)),
-		);
+		this.symbolNodes.forEach((symbolNode) => {
+			const { documentSymbols, topLevelSymbols } = symbolNode.getSymbols(
+				this.tree.rootNode,
+				parser,
+			);
+			fileDocumentSymbols.push(...documentSymbols);
+			fileTopLevelSymbols.push(...topLevelSymbols);
+		});
 
-		return symbols;
+		return { documentSymbols: fileDocumentSymbols, topLevelSymbols: fileTopLevelSymbols };
 	}
 }
 
@@ -47,20 +56,24 @@ export class PBClassFileNode extends PBSourceFileNode {
 		super({ tree });
 		this.symbolNodes.push(
 			...[
-				new PBFunctionNode(),
-				new PBSubroutineNode(),
-				new PBEventNode(),
-				new PBExternalFunctionNode(),
-				new PBInstanceVariableNode(),
-				new PBSharedVariableNode(),
-				new PBInnerClassObjectNode(),
-				new PBClassPropertyNode(),
 				new PBGlobalVariableNode(),
 				new PBClassNode(),
-				new PBInnerStructureNode(),
-				new PBStructureFieldNode(),
-				new PBLocalVariableNode(),
-				new PBFunctionParameterVariableNode(),
+
+				// new PBInnerStructureNode(),
+				// new PBStructureFieldNode(),
+
+				// new PBClassPropertyNode(),
+				// new PBInnerClassObjectNode(),
+				// new PBInstanceVariableNode(),
+				// new PBSharedVariableNode(),
+
+				// new PBExternalFunctionNode(),
+				// new PBFunctionNode(),
+				// new PBSubroutineNode(),
+				// new PBEventNode(),
+
+				// new PBLocalVariableNode(),
+				// new PBFunctionParameterVariableNode(),
 			],
 		);
 	}
@@ -69,7 +82,12 @@ export class PBClassFileNode extends PBSourceFileNode {
 export class PBStructureFileNode extends PBSourceFileNode {
 	constructor({ tree }: { tree: Parser.Tree }) {
 		super({ tree });
-		this.symbolNodes.push(...[new PBGlobalStructureNode(), new PBStructureFieldNode()]);
+		this.symbolNodes.push(
+			...[
+				new PBGlobalStructureNode(),
+				// new PBStructureFieldNode()
+			],
+		);
 	}
 }
 
@@ -80,8 +98,8 @@ export class PBFunctionFileNode extends PBSourceFileNode {
 			...[
 				new PBGlobalFunctionNode(),
 				new PBGlobalSubroutineNode(),
-				new PBLocalVariableNode(),
-				new PBFunctionParameterVariableNode(),
+				// new PBLocalVariableNode(),
+				// new PBFunctionParameterVariableNode(),
 			],
 		);
 	}

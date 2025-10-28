@@ -11,8 +11,8 @@ describe('SymbolProvider', () => {
 
 	beforeEach(() => {
 		parser = new TreeSitterParser();
-		manager = new DocumentManager({ parser });
 		provider = new SymbolProvider();
+		manager = new DocumentManager({ parser, symbolProvider: provider });
 	});
 
 	test('should extract function symbols', () => {

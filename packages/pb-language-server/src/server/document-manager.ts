@@ -64,7 +64,7 @@ export default class DocumentManager {
 	}
 
 	private onDidOpen({ document }: TextDocumentChangeEvent<TextDocument>) {
-		logger.getLogger().info(`Document opened: ${document.uri}`);
+		logger.getLogger().debug(`Document opened: ${document.uri}`);
 
 		this.powerbuilderLanguageService.parseAndCache(
 			document.uri,
@@ -82,7 +82,7 @@ export default class DocumentManager {
 
 		const { document } = event;
 
-		logger.getLogger().info(`Document changed: ${document.uri}`);
+		logger.getLogger().debug(`Document changed: ${document.uri}`);
 
 		this.setCurrentDocument(document);
 
@@ -106,12 +106,12 @@ export default class DocumentManager {
 	}
 
 	private onDidSave({ document }: TextDocumentChangeEvent<TextDocument>) {
-		logger.getLogger().info(`Document saved: ${document.uri}`);
+		logger.getLogger().debug(`Document saved: ${document.uri}`);
 		this.validateDocument(document.uri);
 	}
 
 	private onDidClose(event: TextDocumentChangeEvent<TextDocument>) {
-		logger.getLogger().info(`Document closed: ${event.document.uri}`);
+		logger.getLogger().debug(`Document closed: ${event.document.uri}`);
 
 		const timer = this.diagnosticTimers.get(event.document.uri);
 		if (timer) {
@@ -128,7 +128,7 @@ export default class DocumentManager {
 		try {
 			const diagnostics = this.powerbuilderLanguageService.validate(uri);
 			this.connection.sendDiagnostics({ uri, diagnostics });
-			logger.getLogger().info(`Sent ${diagnostics.length} diagnostic(s) for ${uri}`);
+			logger.getLogger().debug(`Sent ${diagnostics.length} diagnostic(s) for ${uri}`);
 		} catch (error) {
 			logger.getLogger().error(`Error validating document ${uri}: ${error}`);
 		}

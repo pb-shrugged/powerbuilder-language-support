@@ -1,12 +1,15 @@
 import { validateDocument } from '../features/diagnostics';
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
 import { DocumentManager } from '../service/document-manager';
+import { SymbolProvider } from '../symbols/symbol-provider';
 
 describe('Diagnostics', () => {
 	let manager: DocumentManager;
+	let symbolProvider: SymbolProvider;
 
 	beforeEach(() => {
-		manager = new DocumentManager({ parser: new TreeSitterParser() });
+		symbolProvider = new SymbolProvider();
+		manager = new DocumentManager({ parser: new TreeSitterParser(), symbolProvider });
 	});
 
 	test('should return no diagnostics for valid code', () => {

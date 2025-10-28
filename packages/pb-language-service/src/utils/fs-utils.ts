@@ -10,7 +10,7 @@ export async function getFilePaths({
 }: {
 	filesGlobPattern: string;
 	rootPath: string;
-	maxItems: number;
+	maxItems?: number;
 }): Promise<string[]> {
 	if (rootPath.startsWith('file://')) {
 		rootPath = fileURLToPath(rootPath);
@@ -29,7 +29,7 @@ export async function getFilePaths({
 	const files = [];
 	let i = 0;
 	for await (const fileEntry of stream) {
-		if (i >= maxItems) {
+		if (maxItems && i >= maxItems) {
 			// NOTE: Close the stream to stop reading files paths.
 			stream.emit('close');
 			break;

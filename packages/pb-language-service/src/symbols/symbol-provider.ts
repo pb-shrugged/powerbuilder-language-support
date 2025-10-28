@@ -1,6 +1,6 @@
 import { logger } from '@powerbuilder-language-support/logger';
 import Parser from 'tree-sitter';
-import { Position, Range, SymbolKind } from 'vscode-languageserver-types';
+import { Position, Range, SymbolKind, SymbolTag } from 'vscode-languageserver-types';
 
 import { NodeType } from '../parser/tree-sitter/node/tree-sitter-node';
 import * as TreeSitterUtils from '../parser/tree-sitter/tree-sitter-ast-utils';
@@ -13,7 +13,10 @@ export interface Symbol {
 	range: Range;
 	selectionRange: Range;
 	detail?: string;
+	tags?: SymbolTag[];
+	children?: Symbol[];
 	node: Parser.SyntaxNode;
+	isTopLevel?: boolean;
 }
 
 /**
@@ -23,11 +26,14 @@ export class SymbolProvider {
 	/**
 	 * Coleta todos os símbolos top-level de um documento
 	 */
-	public getDocumentSymbols(parser: TreeSitterParser, document: DocumentInfo): Symbol[] {
+	public getDocumentSymbols(
+		parser: TreeSitterParser,
+		document: DocumentInfo,
+	): { documentSymbols: Symbol[]; topLevelSymbols: Symbol[] } {
 		const sourceFile = parser.getSourceFile(document.tree);
 
 		if (!sourceFile) {
-			return [];
+			return { documentSymbols: [], topLevelSymbols: [] };
 		}
 
 		return sourceFile.getSymbols(parser);
@@ -41,7 +47,7 @@ export class SymbolProvider {
 		document: DocumentInfo,
 		position: Position,
 	): Symbol | null {
-		const symbols = this.getDocumentSymbols(parser, document);
+		const { documentSymbols: symbols } = this.getDocumentSymbols(parser, document);
 
 		// Primeiro, encontra o identificador na posição
 		const node = this.findNodeAtPosition(document.tree.rootNode, position);

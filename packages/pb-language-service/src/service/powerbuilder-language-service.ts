@@ -8,6 +8,7 @@ import {
 	Location,
 	Position,
 	WorkspaceFolder,
+	WorkspaceSymbol,
 } from 'vscode-languageserver-types';
 
 import { findDefinition } from '../features/definition';
@@ -39,8 +40,11 @@ export class PowerBuilderLanguageService {
 		}
 
 		this.parser = new TreeSitterParser();
-		this.documentManager = new DocumentManager({ parser: this.parser });
 		this.symbolProvider = new SymbolProvider();
+		this.documentManager = new DocumentManager({
+			parser: this.parser,
+			symbolProvider: this.symbolProvider,
+		});
 	}
 
 	/**
@@ -139,11 +143,7 @@ export class PowerBuilderLanguageService {
 
 		let filePaths: string[] = [];
 		try {
-			filePaths = await getFilePaths({
-				filesGlobPattern,
-				rootPath: workspace.uri,
-				maxItems: backgroundAnalysisMaxFiles,
-			});
+			filePaths = await this.getAllFilesFromWorkSpace(filesGlobPattern);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : error;
 			logger
@@ -161,7 +161,6 @@ export class PowerBuilderLanguageService {
 				const fileContent = await fs.promises.readFile(filePath, 'utf8');
 
 				this.parseAndCache(uri, fileContent, 1);
-				this.analyse(uri);
 			} catch (error) {
 				logger
 					.getLogger()
@@ -169,8 +168,70 @@ export class PowerBuilderLanguageService {
 			}
 		}
 
-		return Promise.resolve({ filesParsed: 0 });
+		return Promise.resolve({ filesParsed: filePaths.length });
 	}
 
-	analyse(uri: string): Diagnostic[] {}
+	private async getAllFilesFromWorkSpace(filesGlobPattern: string): Promise<string[]> {
+		if (!this.workspaceFolders) {
+			return Promise.resolve([]);
+		}
+
+		const workspace = this.workspaceFolders.at(0);
+
+		if (!workspace) {
+			return Promise.resolve([]);
+		}
+		const filesPath = await getFilePaths({
+			filesGlobPattern,
+			rootPath: workspace.uri,
+		});
+
+		return filesPath;
+	}
+
+	async findWorkspaceSymbolsWithFuzzySearch({
+		queryParam,
+		filesGlobPattern,
+	}: {
+		queryParam: string;
+		filesGlobPattern: string;
+	}): Promise<WorkspaceSymbol[]> {
+		const workspaceSymbols: WorkspaceSymbol[] = [];
+
+		// TODO: Use queryParam and FuzzySearch to dont need to look to all files and symbols
+
+		const filesPath = await this.getAllFilesFromWorkSpace(filesGlobPattern);
+		for (const filePath of filesPath) {
+			const uri = url.pathToFileURL(filePath).href;
+
+			const document = this.documentManager.getDocument(uri);
+
+			if (!document) {
+				try {
+					const fileContent = await fs.promises.readFile(filePath, 'utf8');
+
+					this.parseAndCache(uri, fileContent, 1);
+				} catch (error) {
+					logger
+						.getLogger()
+						.error(
+							`findWorkspaceSymbolsWithFuzzySearch: Failed analyzing ${uri}. Error: ${error}`,
+						);
+				}
+			}
+
+			if (document) {
+				document.topLevelSymbols.forEach((topLevelSymbol) => {
+					workspaceSymbols.push({
+						location: { uri: document.uri },
+						name: topLevelSymbol.name,
+						kind: topLevelSymbol.kind,
+						containerName: topLevelSymbol.name,
+					});
+				});
+			}
+		}
+
+		return workspaceSymbols;
+	}
 }

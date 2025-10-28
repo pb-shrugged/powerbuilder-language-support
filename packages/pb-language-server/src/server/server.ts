@@ -163,11 +163,11 @@ export default class PowerBuilderServer {
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	private onDidOpenTextDocument(params: LSP.DidOpenTextDocumentParams) {
-		logger.getLogger().info('onDidOpenTextDocument');
+		logger.getLogger().debug('onDidOpenTextDocument');
 	}
 
 	private onDidChangeTextDocument(params: LSP.DidChangeTextDocumentParams) {
-		logger.getLogger().info('onDidChangeTextDocument');
+		logger.getLogger().debug('onDidChangeTextDocument');
 
 		const { textDocument, contentChanges } = params;
 		const document = this.documentManager.getDocumentByURI(textDocument.uri);
@@ -204,7 +204,7 @@ export default class PowerBuilderServer {
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	private onDidCloseTextDocument(params: LSP.DidCloseTextDocumentParams) {
-		logger.getLogger().info('onDidCloseTextDocument');
+		logger.getLogger().debug('onDidCloseTextDocument');
 	}
 
 	private onHover(params: LSP.HoverParams) {
@@ -234,7 +234,6 @@ export default class PowerBuilderServer {
 	}
 
 	private onDocumentSymbol(params: LSP.DocumentSymbolParams) {
-		logger.getLogger().debug('onDocumentSymbol');
 		try {
 			const symbols = this.powerbuilderLanguageService.buildDocumentSymbols(
 				params.textDocument.uri,
@@ -246,11 +245,18 @@ export default class PowerBuilderServer {
 		}
 	}
 
-	private onWorkspaceSymbol(params: LSP.WorkspaceSymbolParams) {
-		logger.getLogger().debug('onWorkspaceSymbol');
-		logger.getLogger().debug(JSON.stringify(params));
-
-		return null;
+	private async onWorkspaceSymbol(
+		params: LSP.WorkspaceSymbolParams,
+	): Promise<LSP.WorkspaceSymbol[] | null> {
+		try {
+			return await this.powerbuilderLanguageService.findWorkspaceSymbolsWithFuzzySearch({
+				queryParam: params.query,
+				filesGlobPattern: this.config.globPattern,
+			});
+		} catch (error) {
+			logger.getLogger().error(`Error on onWorkspaceSymbol: ${error}`);
+		}
+		return Promise.resolve(null);
 	}
 
 	private async startBackgroundAnalysis(): Promise<{ filesParsed: number }> {

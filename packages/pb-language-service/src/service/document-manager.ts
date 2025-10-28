@@ -2,6 +2,7 @@ import Parser from 'tree-sitter';
 import { DocumentSymbol, Range } from 'vscode-languageserver-types';
 
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
+import { SymbolProvider } from '../symbols/symbol-provider';
 
 /**
  * Representa uma mudança incremental em um documento de texto
@@ -29,6 +30,7 @@ export interface DocumentInfo {
 	tree: Parser.Tree;
 	text: string;
 	documentSymbols: DocumentSymbol[];
+	topLevelSymbols: DocumentSymbol[];
 }
 
 /**
@@ -36,10 +38,18 @@ export interface DocumentInfo {
  */
 export class DocumentManager {
 	private parser: TreeSitterParser;
+	private symbolProvider: SymbolProvider;
 	private documents: Map<string, DocumentInfo>;
 
-	constructor({ parser }: { parser: TreeSitterParser }) {
+	constructor({
+		parser,
+		symbolProvider,
+	}: {
+		parser: TreeSitterParser;
+		symbolProvider: SymbolProvider;
+	}) {
 		this.parser = parser;
+		this.symbolProvider = symbolProvider;
 		this.documents = new Map();
 	}
 
@@ -47,14 +57,26 @@ export class DocumentManager {
 	 * Faz parsing de um documento e armazena no cache
 	 */
 	parseAndCache(uri: string, text: string, version: number): Parser.Tree {
-		const tree = this.parser.parse(text);
+		const tree = this.parser.parse(text, this.getTree(uri));
 
-		this.documents.set(uri, {
+		const document: DocumentInfo = {
 			uri,
 			version,
 			tree,
 			text,
-		});
+			documentSymbols: [],
+			topLevelSymbols: [],
+		};
+
+		const { documentSymbols, topLevelSymbols } = this.symbolProvider.getDocumentSymbols(
+			this.parser,
+			document,
+		);
+
+		document.documentSymbols.push(...documentSymbols);
+		document.topLevelSymbols.push(...topLevelSymbols);
+
+		this.documents.set(uri, document);
 
 		return tree;
 	}
@@ -145,6 +167,8 @@ export class DocumentManager {
 			version: newVersion,
 			tree,
 			text,
+			documentSymbols: [],
+			topLevelSymbols: [],
 		});
 
 		return tree;
