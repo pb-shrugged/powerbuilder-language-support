@@ -13,7 +13,7 @@
 		"lint:fix": "eslint . --fix"
 	},
 	"dependencies": {
-		"@pb-shrugged/tree-sitter-powerbuilder": "^2.0.5",
+		"@pb-shrugged/tree-sitter-powerbuilder": "^2.0.6",
 		"@powerbuilder-language-support/logger": "^0.1.0",
 		"fast-glob": "^2.0.1",
 		"tree-sitter": "^0.25.0",
