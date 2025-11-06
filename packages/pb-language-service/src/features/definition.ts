@@ -3,7 +3,7 @@ import Parser from 'tree-sitter';
 import { Location, Position } from 'vscode-languageserver-types';
 
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
-import { DocumentInfo } from '../service/document-manager';
+import { DocumentInfo, DocumentManager } from '../service/document-manager';
 import { SymbolProvider } from '../symbols/symbol-provider';
 
 /**
@@ -12,16 +12,20 @@ import { SymbolProvider } from '../symbols/symbol-provider';
 export function findDefinition(
 	parser: TreeSitterParser,
 	symbolProvider: SymbolProvider,
+	documentManager: DocumentManager,
 	document: DocumentInfo,
 	position: Position,
 ): Location | null {
-	const symbol = symbolProvider.findDefinitionAtPosition(parser, document, position);
+	const symbol = symbolProvider.findDefinitionAtPosition(
+		parser,
+		document,
+		documentManager,
+		position,
+	);
 
 	if (!symbol) {
 		return null;
 	}
-
-	logger.getLogger().debug(`selectionRange: ${symbol.selectionRange}`);
 
 	return {
 		uri: document.uri,

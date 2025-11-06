@@ -51,7 +51,6 @@ export abstract class PBSymbolNode {
 								childSymbol.getSymbols(searchNode, parser);
 
 							nameSymbol.children.push(...documentSymbols);
-							symbols.push(...documentSymbols);
 							topLevelSymbols.push(...childTopLevelSymbols);
 						}
 					});
@@ -92,7 +91,7 @@ export class PBClassNode extends PBSymbolNode {
 				(global_type_definition
 							init: (global_type_declaration_init
 								(type_declaration_init
-									type_name: (identifier) @${this.identifierCapture.name})))) @${this.scopeCapture.name}
+									type_name: (class_name) @${this.identifierCapture.name})))) @${this.scopeCapture.name}
 		`,
 		});
 
@@ -152,8 +151,6 @@ export class PBStructureFieldNode extends PBSymbolNode {
 	constructor() {
 		super();
 
-		this._isTopLevel = true;
-
 		this.identifierCapture = new PBQueryCapture({
 			name: 'structure_field',
 			index: 1,
@@ -182,8 +179,6 @@ export class PBClassPropertyNode extends PBSymbolNode {
 	constructor() {
 		super();
 
-		this._isTopLevel = true;
-
 		this.identifierCapture = new PBQueryCapture({
 			name: 'class_property_name',
 			index: 1,
@@ -201,7 +196,7 @@ export class PBClassPropertyNode extends PBSymbolNode {
 										(local_variable_declaration
 												(variable_declaration_list
 														(variable_declaration_identifier
-																var_name: (identifier) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))))
+																var_name: (var_name) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))))
 		`,
 		});
 	}
@@ -216,8 +211,6 @@ export class PBInnerClassObjectNode extends PBSymbolNode {
 	constructor() {
 		super();
 
-		this._isTopLevel = true;
-
 		this.identifierCapture = new PBQueryCapture({
 			name: 'inner_class_object_name',
 			index: 1,
@@ -231,7 +224,7 @@ export class PBInnerClassObjectNode extends PBSymbolNode {
 			(inner_type_definition
 				(type_definition
 						init: (type_declaration_init
-								type_name: (identifier) @${this.identifierCapture.name}))) @${this.scopeCapture.name}
+								type_name: (class_name) @${this.identifierCapture.name}))) @${this.scopeCapture.name}
 		`,
 		});
 	}
@@ -245,8 +238,6 @@ export class PBInstanceVariableNode extends PBSymbolNode {
 
 	constructor() {
 		super();
-
-		this._isTopLevel = true;
 
 		this.identifierCapture = new PBQueryCapture({
 			name: 'instance_variable_name',
@@ -266,7 +257,7 @@ export class PBInstanceVariableNode extends PBSymbolNode {
 										(local_variable_declaration
 												(variable_declaration_list
 														(variable_declaration_identifier
-																var_name: (identifier)@${this.identifierCapture.name}) @${this.scopeCapture.name}))))))
+																var_name: (var_name)@${this.identifierCapture.name}) @${this.scopeCapture.name}))))))
 
 			(type_variables_section
 				body: (type_variables_section_body
@@ -276,7 +267,7 @@ export class PBInstanceVariableNode extends PBSymbolNode {
 												(local_variable_declaration
 														(variable_declaration_list
 																(variable_declaration_identifier
-																		var_name: (identifier)@${this.identifierCapture.name}) @${this.scopeCapture.name})))))))
+																		var_name: (var_name)@${this.identifierCapture.name}) @${this.scopeCapture.name})))))))
 		`,
 		});
 	}
@@ -306,7 +297,7 @@ export class PBSharedVariableNode extends PBSymbolNode {
 						(local_variable_declaration
 								(variable_declaration_list
 										(variable_declaration_identifier
-												var_name: (identifier) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))
+												var_name: (var_name) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))
 		`,
 		});
 	}
@@ -324,8 +315,6 @@ export class PBFunctionNode extends PBSymbolNode {
 
 	constructor() {
 		super();
-
-		this._isTopLevel = true;
 
 		this.identifierCapture = new PBQueryCapture({ name: 'funtion_name', index: 2 });
 		this.scopeCapture = new PBQueryCapture({
@@ -360,8 +349,6 @@ export class PBSubroutineNode extends PBSymbolNode {
 	constructor() {
 		super();
 
-		this._isTopLevel = true;
-
 		this.identifierCapture = new PBQueryCapture({ name: 'subroutine_name', index: 2 });
 		this.scopeCapture = new PBQueryCapture({
 			name: 'scope_node',
@@ -394,8 +381,6 @@ export class PBEventNode extends PBSymbolNode {
 	constructor() {
 		super();
 
-		this._isTopLevel = true;
-
 		this.identifierCapture = new PBQueryCapture({ name: 'event_name', index: 2 });
 		this.scopeCapture = new PBQueryCapture({
 			name: 'scope_node',
@@ -423,8 +408,6 @@ export class PBExternalFunctionNode extends PBSymbolNode {
 
 	constructor() {
 		super();
-
-		this._isTopLevel = true;
 
 		this.identifierCapture = new PBQueryCapture({
 			name: 'external_function_name',
@@ -472,7 +455,7 @@ export class PBLocalVariableNode extends PBSymbolNode {
 						(local_variable_declaration
 								(variable_declaration_list
 										(variable_declaration_identifier
-												var_name: (identifier) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))
+												var_name: (var_name) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))
 		`,
 		});
 	}
@@ -663,7 +646,7 @@ export class PBGlobalVariableNode extends PBSymbolNode {
 						(local_variable_declaration
 								(variable_declaration_list
 										(variable_declaration_identifier
-												var_name: (identifier) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))
+												var_name: (var_name) @${this.identifierCapture.name}) @${this.scopeCapture.name}))))
 			(forward_section
 				body: (forward_section_body
 						(global_variable_declaration

@@ -1,6 +1,7 @@
 import Parser from 'tree-sitter';
 import { DocumentSymbol, Range } from 'vscode-languageserver-types';
 
+import { PBSourceFileNode } from '../parser/tree-sitter/node/pb-source-file';
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
 import { SymbolProvider } from '../symbols/symbol-provider';
 
@@ -31,6 +32,7 @@ export interface DocumentInfo {
 	text: string;
 	documentSymbols: DocumentSymbol[];
 	topLevelSymbols: DocumentSymbol[];
+	sourceFile: PBSourceFileNode;
 }
 
 /**
@@ -57,26 +59,40 @@ export class DocumentManager {
 	 * Faz parsing de um documento e armazena no cache
 	 */
 	parseAndCache(uri: string, text: string, version: number): Parser.Tree {
+		const document = this.getDocument(uri);
 		const tree = this.parser.parse(text, this.getTree(uri));
 
-		const document: DocumentInfo = {
+		let sourceFile: PBSourceFileNode;
+		if (document) {
+			sourceFile = document.sourceFile;
+		} else {
+			const createdSourceFile = this.parser.getSourceFile(tree);
+			if (createdSourceFile) {
+				sourceFile = createdSourceFile;
+			} else {
+				throw new Error('parseAndCache: error creating PBSourceFileNode');
+			}
+		}
+
+		const updatedDocument: DocumentInfo = {
 			uri,
 			version,
 			tree,
 			text,
 			documentSymbols: [],
 			topLevelSymbols: [],
+			sourceFile,
 		};
 
 		const { documentSymbols, topLevelSymbols } = this.symbolProvider.getDocumentSymbols(
 			this.parser,
-			document,
+			updatedDocument,
 		);
 
-		document.documentSymbols.push(...documentSymbols);
-		document.topLevelSymbols.push(...topLevelSymbols);
+		updatedDocument.documentSymbols.push(...documentSymbols);
+		updatedDocument.topLevelSymbols.push(...topLevelSymbols);
 
-		this.documents.set(uri, document);
+		this.documents.set(uri, updatedDocument);
 
 		return tree;
 	}
@@ -105,74 +121,74 @@ export class DocumentManager {
 	/**
 	 * Atualiza um documento com mudanças incrementais
 	 */
-	updateWithChanges(
-		uri: string,
-		changes: TextDocumentContentChangeEvent[],
-		newVersion: number,
-	): Parser.Tree | undefined {
-		const docInfo = this.documents.get(uri);
-		if (!docInfo) {
-			return undefined;
-		}
-
-		let tree = docInfo.tree;
-		let text = docInfo.text;
-
-		// Aplica cada mudança incrementalmente
-		for (const change of changes) {
-			if ('range' in change && change.range) {
-				// Mudança incremental
-				const startIndex = this.positionToIndex(
-					text,
-					change.range.start.line,
-					change.range.start.character,
-				);
-				const oldEndIndex = this.positionToIndex(
-					text,
-					change.range.end.line,
-					change.range.end.character,
-				);
-
-				// Atualiza o texto
-				text = text.substring(0, startIndex) + change.text + text.substring(oldEndIndex);
-
-				// Informa ao Tree-sitter sobre a mudança
-				const newEndIndex = startIndex + change.text.length;
-				tree.edit({
-					startIndex,
-					oldEndIndex,
-					newEndIndex,
-					startPosition: {
-						row: change.range.start.line,
-						column: change.range.start.character,
-					},
-					oldEndPosition: {
-						row: change.range.end.line,
-						column: change.range.end.character,
-					},
-					newEndPosition: this.indexToPosition(text, newEndIndex),
-				});
-			} else {
-				// Mudança completa do documento
-				text = change.text;
-			}
-		}
-
-		// Re-parseia com a árvore editada (parsing incremental)
-		tree = this.parser.parse(text, tree);
-
-		// Atualiza o cache
-		this.documents.set(uri, {
-			uri,
-			version: newVersion,
-			tree,
-			text,
-			documentSymbols: [],
-			topLevelSymbols: [],
-		});
-
-		return tree;
-	}
+	//	updateWithChanges(
+	//		uri: string,
+	//		changes: TextDocumentContentChangeEvent[],
+	//		newVersion: number,
+	//	): Parser.Tree | undefined {
+	//		const docInfo = this.documents.get(uri);
+	//		if (!docInfo) {
+	//			return undefined;
+	//		}
+	//
+	//		let tree = docInfo.tree;
+	//		let text = docInfo.text;
+	//
+	//		// Aplica cada mudança incrementalmente
+	//		for (const change of changes) {
+	//			if ('range' in change && change.range) {
+	//				// Mudança incremental
+	//				const startIndex = this.positionToIndex(
+	//					text,
+	//					change.range.start.line,
+	//					change.range.start.character,
+	//				);
+	//				const oldEndIndex = this.positionToIndex(
+	//					text,
+	//					change.range.end.line,
+	//					change.range.end.character,
+	//				);
+	//
+	//				// Atualiza o texto
+	//				text = text.substring(0, startIndex) + change.text + text.substring(oldEndIndex);
+	//
+	//				// Informa ao Tree-sitter sobre a mudança
+	//				const newEndIndex = startIndex + change.text.length;
+	//				tree.edit({
+	//					startIndex,
+	//					oldEndIndex,
+	//					newEndIndex,
+	//					startPosition: {
+	//						row: change.range.start.line,
+	//						column: change.range.start.character,
+	//					},
+	//					oldEndPosition: {
+	//						row: change.range.end.line,
+	//						column: change.range.end.character,
+	//					},
+	//					newEndPosition: this.indexToPosition(text, newEndIndex),
+	//				});
+	//			} else {
+	//				// Mudança completa do documento
+	//				text = change.text;
+	//			}
+	//		}
+	//
+	//		// Re-parseia com a árvore editada (parsing incremental)
+	//		tree = this.parser.parse(text, tree);
+	//
+	//		// Atualiza o cache
+	//		this.documents.set(uri, {
+	//			uri,
+	//			version: newVersion,
+	//			tree,
+	//			text,
+	//			documentSymbols: [],
+	//			topLevelSymbols: [],
+	//		});
+	//
+	//		return tree;
+	//	}
 
 	/**
 	 * Remove um documento do cache
@@ -218,5 +234,9 @@ export class DocumentManager {
 			}
 		}
 		return { row: line, column };
+	}
+
+	getDocuments() {
+		return this.documents;
 	}
 }

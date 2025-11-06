@@ -119,7 +119,7 @@ export default class DocumentManager {
 			this.diagnosticTimers.delete(event.document.uri);
 		}
 
-		this.powerbuilderLanguageService.removeDocument(event.document.uri);
+		// this.powerbuilderLanguageService.removeDocument(event.document.uri);
 
 		this.connection.sendDiagnostics({ uri: event.document.uri, diagnostics: [] });
 	}

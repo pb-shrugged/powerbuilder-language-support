@@ -7,4 +7,6 @@ export const NodeType = {
 	StructureFile: 'structure_file',
 	DatawindowFile: 'datawindow_file',
 	Function: 'function_implementation',
+	MethodInvocation: 'method_invocation',
+	MethodName: 'method_name',
 };

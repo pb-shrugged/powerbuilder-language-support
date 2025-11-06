@@ -22,6 +22,7 @@ export function buildDocumentSymbols(
 		kind: symbol.kind,
 		range: symbol.range,
 		selectionRange: symbol.selectionRange,
-		detail: symbol.detail,
+		detail: 'detail',
+		children: symbol.children,
 	}));
 }

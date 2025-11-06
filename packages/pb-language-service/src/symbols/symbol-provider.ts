@@ -1,5 +1,5 @@
 import { logger } from '@powerbuilder-language-support/logger';
-import Parser from 'tree-sitter';
+import Parser, { SyntaxNode } from 'tree-sitter';
 import {
 	DocumentSymbol,
 	Position,
@@ -11,7 +11,7 @@ import {
 import { NodeType } from '../parser/tree-sitter/node/tree-sitter-node';
 import * as TreeSitterUtils from '../parser/tree-sitter/tree-sitter-ast-utils';
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
-import { DocumentInfo } from '../service/document-manager';
+import { DocumentInfo, DocumentManager } from '../service/document-manager';
 
 export interface Symbol {
 	name: string;
@@ -36,13 +36,7 @@ export class SymbolProvider {
 		parser: TreeSitterParser,
 		document: DocumentInfo,
 	): { documentSymbols: Symbol[]; topLevelSymbols: Symbol[] } {
-		const sourceFile = parser.getSourceFile(document.tree);
-
-		if (!sourceFile) {
-			return { documentSymbols: [], topLevelSymbols: [] };
-		}
-
-		return sourceFile.getSymbols(parser);
+		return document.sourceFile.getSymbols(parser);
 	}
 
 	/**
@@ -51,6 +45,7 @@ export class SymbolProvider {
 	public findDefinitionAtPosition(
 		parser: TreeSitterParser,
 		document: DocumentInfo,
+		documentManager: DocumentManager,
 		position: Position,
 	): DocumentSymbol | null {
 		const { documentSymbols } = document;
@@ -61,20 +56,79 @@ export class SymbolProvider {
 			return null;
 		}
 
-		const identifierText = TreeSitterUtils.getNodeText(node).toLocaleLowerCase();
+		logger
+			.getLogger()
+			.debug(`findNodeAtPosition node type: ${node.type} Text: ${node.text}`);
 
-		logger.getLogger().debug(`identifierText: ${identifierText}`);
+		if (node.type === NodeType.MethodName) {
+			const { isMethodInvocation, methodInvocationNode } =
+				TreeSitterUtils.isNodeMethodInvocationDescendand(node);
+
+			if (isMethodInvocation && methodInvocationNode) {
+				const methodSymbol = this.findMethodSymbol(
+					methodInvocationNode,
+					document,
+					documentManager,
+				);
+
+				if (methodSymbol) {
+					return methodSymbol;
+				}
+			}
+		}
+		const identifierText = TreeSitterUtils.getNodeText(node).toLocaleLowerCase();
 
 		// Procura um símbolo com o mesmo nome
 		const matchingSymbol = documentSymbols.find((symbol) => {
-			logger.getLogger().debug(`symbol.name: ${symbol.name}`);
 			return symbol.name === identifierText;
 		});
-		logger
-			.getLogger()
-			.debug(`matchingSymbol: ${matchingSymbol?.name} ${matchingSymbol?.selectionRange}`);
 
 		return matchingSymbol || null;
+	}
+
+	private findMethodSymbol(
+		methodInvocationNode: SyntaxNode,
+		currentDocument: DocumentInfo,
+		documentManager: DocumentManager,
+	) {
+		let methodSymbol;
+		const objectNode = methodInvocationNode.childForFieldName('object');
+		const methodNameNode = methodInvocationNode.childForFieldName('method_name');
+
+		if (!methodNameNode) {
+			return null;
+		}
+
+		if (objectNode) {
+			logger.getLogger().debug(`object node ${objectNode.text}`);
+		} else {
+			logger.getLogger().debug(`no object node`);
+			documentManager.getDocuments().forEach((document) => {
+				document.topLevelSymbols.forEach((symbol) => {
+					if (symbol.kind === SymbolKind.Function) {
+						if (symbol.name === methodNameNode.text.toLocaleLowerCase()) {
+							methodSymbol = symbol;
+						}
+					}
+				});
+			});
+
+			if (!methodSymbol) {
+				currentDocument.documentSymbols.forEach((symbol) => {
+					if (symbol.kind === SymbolKind.Function) {
+						if (symbol.name === methodNameNode.text.toLocaleLowerCase()) {
+							methodSymbol = symbol;
+						}
+					}
+				});
+			}
+
+			if (methodSymbol) {
+				return methodSymbol;
+			}
+		}
+
+		return null;
 	}
 
 	/**

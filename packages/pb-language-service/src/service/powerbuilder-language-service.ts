@@ -62,7 +62,7 @@ export class PowerBuilderLanguageService {
 		changes: TextDocumentContentChangeEvent[],
 		version: number,
 	): boolean {
-		const tree = this.documentManager.updateWithChanges(uri, changes, version);
+		const tree = undefined; //this.documentManager.updateWithChanges(uri, changes, version);
 		return tree !== undefined;
 	}
 
@@ -103,7 +103,13 @@ export class PowerBuilderLanguageService {
 		if (!document) {
 			return null;
 		}
-		return findDefinition(this.parser, this.symbolProvider, document, position);
+		return findDefinition(
+			this.parser,
+			this.symbolProvider,
+			this.documentManager,
+			document,
+			position,
+		);
 	}
 
 	/**

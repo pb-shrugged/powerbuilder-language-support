@@ -2,6 +2,7 @@ import PowerBuilder from '@pb-shrugged/tree-sitter-powerbuilder';
 import Parser, { Query, QueryMatch, SyntaxNode, Tree } from 'tree-sitter';
 import { Position } from 'vscode-languageserver-types';
 
+import { NodeType } from './node/tree-sitter-node';
 import {
 	DocumentMainNodeTypes,
 	EventQuery,
@@ -192,4 +193,27 @@ export function getFunctionImplementationName(
 	}
 
 	return undefined;
+}
+
+export function isNodeMethodInvocationDescendand(node: SyntaxNode): {
+	isMethodInvocation: boolean;
+	methodInvocationNode: SyntaxNode | null;
+} {
+	if (node.type === NodeType.MethodInvocation) {
+		return {
+			isMethodInvocation: true,
+			methodInvocationNode: node,
+		};
+	}
+
+	const parentNode = node.parent;
+
+	if (parentNode) {
+		return isNodeMethodInvocationDescendand(parentNode);
+	}
+
+	return {
+		isMethodInvocation: false,
+		methodInvocationNode: null,
+	};
 }
