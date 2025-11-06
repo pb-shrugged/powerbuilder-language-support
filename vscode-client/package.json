@@ -85,9 +85,9 @@
 		]
 	},
 	"scripts": {
-		"build": "tsc -b",
+		"build": "tsc -b --clean && tsc -b",
 		"watch": "tsc -b --watch",
-		"clean": "rm -rf out && rm -rf node_modules && rm -f tsconfig.tsbuildinfo",
+		"clean": "tsc -b --clean && rm -rf node_modules",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix"
 	},

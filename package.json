@@ -13,11 +13,10 @@
 		"watch:server": "npm run watch -w ./packages/pb-language-server",
 		"watch:service": "npm run watch -w ./packages/pb-language-service",
 		"watch:logger": "npm run watch -w ./packages/pb-language-logger",
-		"clean": "npm run clean --workspaces --if-present && rm -rf node_modules && rm -rf package-lock.json && rm -rf packages/node_modules",
+		"clean": "npm run clean --workspaces --if-present && rm -rf node_modules && rm -rf packages/node_modules",
 		"test": "npm run test --workspaces --if-present",
 		"lint": "npm run lint --workspaces --if-present",
-		"lint:fix": "npm run lint:fix --workspaces --if-present",
-		"postinstall": "npm run build"
+		"lint:fix": "npm run lint:fix --workspaces --if-present"
 	},
 	"engines": {
 		"node": ">=22.14.0",
