@@ -1,9 +1,6 @@
 import { isDeepStrictEqual } from 'node:util';
 
-import {
-	PowerBuilderLanguageService,
-	TextDocumentContentChangeEvent,
-} from '@powerbuilder-language-support/language-service';
+import { PowerBuilderLanguageService } from '@powerbuilder-language-support/language-service';
 import { logger, LoggerConfig } from '@powerbuilder-language-support/logger';
 import * as LSP from 'vscode-languageserver/node';
 
@@ -159,52 +156,6 @@ export default class PowerBuilderServer {
 
 	private onExit() {
 		logger.getLogger().info('PowerBuilder Language Server exited.');
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	private onDidOpenTextDocument(params: LSP.DidOpenTextDocumentParams) {
-		logger.getLogger().debug('onDidOpenTextDocument');
-	}
-
-	private onDidChangeTextDocument(params: LSP.DidChangeTextDocumentParams) {
-		logger.getLogger().debug('onDidChangeTextDocument');
-
-		const { textDocument, contentChanges } = params;
-		const document = this.documentManager.getDocumentByURI(textDocument.uri);
-
-		if (!document) {
-			return;
-		}
-
-		const changes: TextDocumentContentChangeEvent[] = contentChanges.map((change) => ({
-			range: 'range' in change ? change.range : undefined,
-			rangeLength: 'rangeLength' in change ? change.rangeLength : undefined,
-			text: change.text,
-		}));
-
-		const success = this.powerbuilderLanguageService.updateWithChanges(
-			textDocument.uri,
-			changes,
-			textDocument.version,
-		);
-
-		if (!success) {
-			logger
-				.getLogger()
-				.warn(
-					`Incremental update failed for ${textDocument.uri}, falling back to full parse`,
-				);
-			this.powerbuilderLanguageService.parseAndCache(
-				textDocument.uri,
-				document.getText(),
-				document.version,
-			);
-		}
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	private onDidCloseTextDocument(params: LSP.DidCloseTextDocumentParams) {
-		logger.getLogger().debug('onDidCloseTextDocument');
 	}
 
 	private onHover(params: LSP.HoverParams) {

@@ -97,12 +97,13 @@ export default class DocumentManager {
 			clearTimeout(existingTimer);
 		}
 
-		const timer = setTimeout(() => {
-			this.validateDocument(document.uri);
-			this.diagnosticTimers.delete(document.uri);
-		}, this.config.diagnosticBounceMs);
+		this.validateDocument(document.uri);
 
-		this.diagnosticTimers.set(document.uri, timer);
+		// const timer = setTimeout(() => {
+		// 	this.validateDocument(document.uri);
+		// 	this.diagnosticTimers.delete(document.uri);
+		// }, this.config.diagnosticBounceMs);
+		// this.diagnosticTimers.set(document.uri, timer);
 	}
 
 	private onDidSave({ document }: TextDocumentChangeEvent<TextDocument>) {

@@ -11,7 +11,7 @@ export function validateDocument(tree: Parser.Tree): Diagnostic[] {
 	const diagnostics: Diagnostic[] = [];
 
 	// Coleta todos os nós de erro
-	const errors = collectErrors(tree.rootNode);
+	const { errors, missings } = collectErrors(tree.rootNode);
 
 	if (errors) {
 		for (const errorNode of errors) {
@@ -24,6 +24,22 @@ export function validateDocument(tree: Parser.Tree): Diagnostic[] {
 					end: range.end,
 				},
 				message: 'Syntax error',
+				source: 'powerbuilderLanguageServer',
+			});
+		}
+	}
+
+	if (missings) {
+		for (const missingNode of missings) {
+			const range = getNodeRange(missingNode);
+
+			diagnostics.push({
+				severity: DiagnosticSeverity.Error,
+				range: {
+					start: range.start,
+					end: range.end,
+				},
+				message: `Syntax missing node error: ${missingNode.type}`,
 				source: 'powerbuilderLanguageServer',
 			});
 		}

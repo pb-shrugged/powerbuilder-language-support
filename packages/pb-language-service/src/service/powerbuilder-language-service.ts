@@ -18,7 +18,7 @@ import { provideHover } from '../features/hover';
 import { TreeSitterParser } from '../parser/tree-sitter/tree-sitter-parser';
 import { SymbolProvider } from '../symbols/symbol-provider';
 import { getFilePaths } from '../utils/fs-utils';
-import { DocumentManager, TextDocumentContentChangeEvent } from './document-manager';
+import { DocumentManager } from './document-manager';
 
 /**
  * PowerBuilder Language Service
@@ -52,18 +52,6 @@ export class PowerBuilderLanguageService {
 	 */
 	parseAndCache(uri: string, text: string, version: number): void {
 		this.documentManager.parseAndCache(uri, text, version);
-	}
-
-	/**
-	 * Atualiza um documento com mudanças incrementais
-	 */
-	updateWithChanges(
-		uri: string,
-		changes: TextDocumentContentChangeEvent[],
-		version: number,
-	): boolean {
-		const tree = undefined; //this.documentManager.updateWithChanges(uri, changes, version);
-		return tree !== undefined;
 	}
 
 	/**

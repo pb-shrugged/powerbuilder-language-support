@@ -1,4 +1,5 @@
 import PowerBuilder from '@pb-shrugged/tree-sitter-powerbuilder';
+import { logger } from '@powerbuilder-language-support/logger';
 import Parser, { Query, QueryMatch, SyntaxNode, Tree } from 'tree-sitter';
 import { Position } from 'vscode-languageserver-types';
 
@@ -63,20 +64,29 @@ export function hasError(node: Parser.SyntaxNode): boolean {
 /**
  * Coleta todos os nós do tipo ERROR na árvore
  */
-export function collectErrors(node: Parser.SyntaxNode): Parser.SyntaxNode[] {
+export function collectErrors(node: Parser.SyntaxNode): {
+	errors: Parser.SyntaxNode[];
+	missings: Parser.SyntaxNode[];
+} {
 	const errors: Parser.SyntaxNode[] = [];
+	const missings: Parser.SyntaxNode[] = [];
 
 	function visit(n: Parser.SyntaxNode) {
 		if (n.type === 'ERROR') {
 			errors.push(n);
 		}
+
+		if (n.type.startsWith('MISSING')) {
+			missings.push(n);
+		}
+
 		for (const child of n.children) {
 			visit(child);
 		}
 	}
 
 	visit(node);
-	return errors;
+	return { errors, missings };
 }
 
 /**
