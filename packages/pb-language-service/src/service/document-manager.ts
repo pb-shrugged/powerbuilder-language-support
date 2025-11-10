@@ -60,18 +60,15 @@ export class DocumentManager {
 	 */
 	parseAndCache(uri: string, text: string, version: number): Parser.Tree {
 		const document = this.getDocument(uri);
-		const tree = this.parser.parse(text, this.getTree(uri));
+		const tree = this.parser.parse(text);
 
 		let sourceFile: PBSourceFileNode;
-		if (document) {
-			sourceFile = document.sourceFile;
+
+		const createdSourceFile = this.parser.getSourceFile(tree);
+		if (createdSourceFile) {
+			sourceFile = createdSourceFile;
 		} else {
-			const createdSourceFile = this.parser.getSourceFile(tree);
-			if (createdSourceFile) {
-				sourceFile = createdSourceFile;
-			} else {
-				throw new Error('parseAndCache: error creating PBSourceFileNode');
-			}
+			throw new Error('parseAndCache: error creating PBSourceFileNode');
 		}
 
 		const updatedDocument: DocumentInfo = {

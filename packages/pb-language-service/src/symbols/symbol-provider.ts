@@ -56,10 +56,6 @@ export class SymbolProvider {
 			return null;
 		}
 
-		logger
-			.getLogger()
-			.debug(`findNodeAtPosition node type: ${node.type} Text: ${node.text}`);
-
 		if (node.type === NodeType.MethodName) {
 			const { isMethodInvocation, methodInvocationNode } =
 				TreeSitterUtils.isNodeMethodInvocationDescendand(node);

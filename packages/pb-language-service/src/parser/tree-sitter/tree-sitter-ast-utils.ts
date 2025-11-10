@@ -72,11 +72,13 @@ export function collectErrors(node: Parser.SyntaxNode): {
 	const missings: Parser.SyntaxNode[] = [];
 
 	function visit(n: Parser.SyntaxNode) {
-		if (n.type === 'ERROR') {
+		if (n.isError) {
+			logger.getLogger().debug(`ERROR NODE: ${n.text} ${n.toString()}`);
 			errors.push(n);
 		}
 
-		if (n.type.startsWith('MISSING')) {
+		if (n.isMissing) {
+			logger.getLogger().debug(`MISSING NODE: ${n.text} ${n.toString()}`);
 			missings.push(n);
 		}
 
